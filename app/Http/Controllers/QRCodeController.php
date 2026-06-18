@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 
 class QRCodeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         if (Auth::user()->role !== 'admin') {
             abort(403, 'Unauthorized access.');
@@ -24,31 +24,35 @@ class QRCodeController extends Controller
 
     private function getTodayQRToken($date)
     {
-        // Check if a QR token already exists for today
-        $existingAttendance = Attendance::where('attendance_date', $date)
-            ->whereNotNull('qr_token')
-            ->first();
-
-        if ($existingAttendance) {
-            return $existingAttendance->qr_token;
+        // Use cache to store/retrieve the daily QR token
+        $cacheKey = 'daily_qr_token_' . $date;
+        
+        $token = cache()->get($cacheKey);
+        
+        if ($token) {
+            return $token;
         }
 
-        // Generate a new unique token for today
-        return Str::random(32) . '-' . $date;
+        // Generate a new unique token for today and store it in cache
+        $token = Str::random(32) . '-' . $date;
+        cache()->put($cacheKey, $token, now()->endOfDay());
+        
+        return $token;
     }
 
     public function scan(Request $request)
     {
-        // This will handle QR code scanning logic
-        // For now, return a placeholder view
+        // Handle QR code scanning logic
         return view('qr.scan');
     }
 
     public function verify(Request $request)
     {
-        // This will verify QR code and mark attendance
+        // Validate request
         $request->validate([
             'qr_token' => 'required|string',
+        ], [
+            'qr_token.required' => 'Please enter the QR token.',
         ]);
 
         $user = Auth::user();
@@ -63,30 +67,36 @@ class QRCodeController extends Controller
             return back()->with('error', 'You have already checked in today.');
         }
 
-        // Verify QR token (simplified - in production, you'd verify against today's token)
+        // Get today's valid QR token
         $todayToken = $this->getTodayQRToken($today);
 
+        // Verify QR token
         if ($request->qr_token !== $todayToken) {
-            return back()->with('error', 'Invalid QR code.');
+            return back()->with('error', 'Invalid QR token. Please check with your admin.');
         }
 
         // Create attendance record
         $checkInTime = now();
         $status = 'present';
 
-        // Check if late (after 9:00 AM for example)
-        if ($checkInTime->hour >= 9 && $checkInTime->minute > 0) {
+        // Check if late (after 9:00 AM)
+        $lateThreshold = $checkInTime->copy()->setHour(9)->setMinute(0)->setSecond(0);
+        if ($checkInTime->gt($lateThreshold)) {
             $status = 'late';
         }
 
-        Attendance::create([
-            'user_id' => $user->id,
-            'attendance_date' => $today,
-            'check_in_time' => $checkInTime->format('H:i:s'),
-            'status' => $status,
-            'qr_token' => $request->qr_token,
-        ]);
+        try {
+            Attendance::create([
+                'user_id' => $user->id,
+                'attendance_date' => $today,
+                'check_in_time' => $checkInTime->format('H:i:s'),
+                'status' => $status,
+                'qr_token' => $request->qr_token,
+            ]);
 
-        return back()->with('success', 'Attendance marked successfully!');
+            return back()->with('success', 'Attendance marked successfully! Check-in time: ' . $checkInTime->format('H:i'));
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error marking attendance. Please try again.');
+        }
     }
 }

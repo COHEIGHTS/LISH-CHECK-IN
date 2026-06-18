@@ -53,7 +53,6 @@
         padding: 40px 36px;
     }
 
-    /* ── Header ── */
     .card-header { text-align: center; margin-bottom: 32px; }
 
     .logo-wrap {
@@ -82,7 +81,6 @@
     .card-title { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -0.5px; margin-bottom: 6px; }
     .card-sub   { font-size: 13px; color: rgba(255,255,255,.4); }
 
-    /* ── Session status ── */
     .session-status {
         background: rgba(52,211,153,.1);
         border: 1px solid rgba(52,211,153,.25);
@@ -96,7 +94,6 @@
         gap: 8px;
     }
 
-    /* ── Fields ── */
     .field { margin-bottom: 18px; }
 
     .field label {
@@ -173,7 +170,6 @@
         gap: 4px;
     }
 
-    /* ── Remember + Forgot row ── */
     .row-between {
         display: flex;
         align-items: center;
@@ -209,7 +205,6 @@
 
     .forgot-link:hover { color: #c4b5fd; }
 
-    /* ── Submit ── */
     .btn-login {
         width: 100%;
         padding: 13px;
@@ -258,7 +253,6 @@
 <div class="login-wrapper">
     <div class="login-card">
 
-        {{-- Header --}}
         <div class="card-header">
             <a href="{{ url('/') }}" class="logo-wrap">
                 <div class="logo-icon">
@@ -270,7 +264,6 @@
             <div class="card-sub">Sign in to your account to continue</div>
         </div>
 
-        {{-- Session status --}}
         @if (session('status'))
             <div class="session-status">
                 <i class="ti ti-circle-check"></i>
@@ -281,7 +274,6 @@
         <form method="POST" action="{{ route('login') }}">
             @csrf
 
-            {{-- Email --}}
             <div class="field">
                 <label for="email">Email Address</label>
                 <div class="input-wrap">
@@ -296,7 +288,6 @@
                 @enderror
             </div>
 
-            {{-- Password --}}
             <div class="field">
                 <label for="password">Password</label>
                 <div class="input-wrap">
@@ -314,7 +305,6 @@
                 @enderror
             </div>
 
-            {{-- Remember me + Forgot password --}}
             <div class="row-between">
                 <label class="remember-label">
                     <input type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>

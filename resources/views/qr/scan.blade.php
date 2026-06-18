@@ -1,7 +1,7 @@
 @extends('layouts.app-dashboard')
 
 @section('content')
-@php $title = 'Scan QR Code'; @endphp
+@php $title = 'Mark Attendance'; @endphp
 
 <style>
     .scan-wrapper {
@@ -34,26 +34,6 @@
     .header p {
         font-size: 14px;
         color: rgba(255,255,255,.5);
-    }
-
-    .scan-area {
-        background: rgba(255,255,255,.03);
-        border: 2px dashed rgba(124,58,237,.3);
-        border-radius: 16px;
-        padding: 40px;
-        margin-bottom: 24px;
-    }
-
-    .scan-icon {
-        font-size: 64px;
-        color: #a78bfa;
-        margin-bottom: 16px;
-    }
-
-    .scan-text {
-        font-size: 14px;
-        color: rgba(255,255,255,.5);
-        margin-bottom: 24px;
     }
 
     .manual-input {
@@ -125,13 +105,29 @@
         border: 1px solid rgba(248,113,113,.3);
         color: #f87171;
     }
+
+    .info-box {
+        background: rgba(52,211,153,.1);
+        border: 1px solid rgba(52,211,153,.3);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 24px;
+        text-align: left;
+    }
+
+    .info-box p {
+        font-size: 13px;
+        color: #34d399;
+        line-height: 1.6;
+        margin: 0;
+    }
 </style>
 
 <div class="scan-wrapper">
     <div class="scan-card">
         <div class="header">
-            <h2>Scan QR Code</h2>
-            <p>Scan the daily QR code to mark your attendance</p>
+            <h2>Mark Attendance</h2>
+            <p>Enter the QR token from your admin to check in</p>
         </div>
 
         @if(session('success'))
@@ -146,12 +142,13 @@
             </div>
         @endif
 
-        <div class="scan-area">
-            <i class="ti ti-qr-code scan-icon"></i>
-            <div class="scan-text">
-                Point your camera at the QR code<br>
-                or enter the token manually below
-            </div>
+        <div class="info-box">
+            <p>
+                <strong>How to mark attendance:</strong><br>
+                1. Ask your admin for today's QR token<br>
+                2. Enter the token below<br>
+                3. Click "Mark Attendance"
+            </p>
         </div>
 
         <form action="{{ route('qr.verify') }}" method="POST">
@@ -162,8 +159,9 @@
                     type="text" 
                     id="qr_token" 
                     name="qr_token" 
-                    placeholder="Enter QR code token"
+                    placeholder="Enter today's QR token"
                     required
+                    autocomplete="off"
                 >
             </div>
             <button type="submit" class="btn-submit">

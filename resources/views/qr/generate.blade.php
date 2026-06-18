@@ -43,6 +43,8 @@
         padding: 24px;
         margin-bottom: 24px;
         display: inline-block;
+        min-height: 200px;
+        min-width: 200px;
     }
 
     #qrcode {
@@ -51,9 +53,11 @@
         margin: 0 auto;
     }
 
+    #qrcode canvas,
     #qrcode img {
         width: 100%;
         height: 100%;
+        display: block;
     }
 
     .token-display {
@@ -139,9 +143,15 @@
         color: #34d399;
         margin-bottom: 16px;
     }
-</style>
 
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    .error-message {
+        color: #f87171;
+        padding: 20px;
+        background: rgba(248,113,113,.1);
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+</style>
 
 <div class="qr-wrapper">
     <div class="qr-card">
@@ -167,61 +177,94 @@
         </div>
 
         <div class="token-display">
-            <div class="token-label">QR Token</div>
+            <div class="token-label">Today's QR Token</div>
             <div class="token-value">{{ $qrToken }}</div>
         </div>
 
-        <button onclick="generateQRCode()" class="btn-refresh">
-            <i class="ti ti-refresh"></i>
-            Regenerate QR Code
-        </button>
+        <div style="background: rgba(52,211,153,.1); border: 1px solid rgba(52,211,153,.3); border-radius: 12px; padding: 16px; margin-bottom: 24px; text-align: left;">
+            <div style="font-size: 13px; color: #34d399; line-height: 1.6;">
+                <strong>How staff can mark attendance:</strong><br>
+                1. Scan this QR code with their phone camera<br>
+                2. Or manually enter this token on their attendance page
+            </div>
+        </div>
 
-        <button onclick="downloadQRCode()" class="btn-refresh" style="margin-left: 8px;">
+        <button onclick="downloadQRCode()" class="btn-refresh">
             <i class="ti ti-download"></i>
             Download QR Code
         </button>
     </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
     const qrToken = '{{ $qrToken }}';
-    let qrCanvas = null;
+    let qrCodeObj = null;
 
     function generateQRCode() {
+        console.log('Generating QR code with token:', qrToken);
+        
         const qrContainer = document.getElementById('qrcode');
         qrContainer.innerHTML = '';
         
-        QRCode.toCanvas(qrToken, { 
-            width: 200,
-            margin: 2,
-            color: {
-                dark: '#7c3aed',
-                light: '#ffffff'
-            }
-        }, function(error, canvas) {
-            if (error) {
-                console.error(error);
-                qrContainer.innerHTML = '<div style="color: #f87171; padding: 20px;">Error generating QR code</div>';
-                return;
-            }
-            qrCanvas = canvas;
-            qrContainer.appendChild(canvas);
-        });
+        if (!qrToken || qrToken === '') {
+            qrContainer.innerHTML = '<div class="error-message">No QR token available</div>';
+            return;
+        }
+        
+        if (typeof QRCode === 'undefined') {
+            qrContainer.innerHTML = '<div class="error-message">QR Code library not loaded. Please refresh the page.</div>';
+            console.error('QRCode library not loaded');
+            return;
+        }
+        
+        try {
+            qrCodeObj = new QRCode(qrContainer, {
+                text: qrToken,
+                width: 200,
+                height: 200,
+                colorDark: "#7c3aed",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            console.log('QR Code generated successfully');
+        } catch (e) {
+            console.error('QR Code generation exception:', e);
+            qrContainer.innerHTML = '<div class="error-message">Error generating QR code: ' + e.message + '</div>';
+        }
     }
 
     function downloadQRCode() {
-        if (!qrCanvas) {
+        const qrContainer = document.getElementById('qrcode');
+        const img = qrContainer.querySelector('img');
+        
+        if (!img) {
             alert('Please generate the QR code first');
             return;
         }
         
         const link = document.createElement('a');
         link.download = 'qr-code-{{ $today }}.png';
-        link.href = qrCanvas.toDataURL('image/png');
+        link.href = img.src;
         link.click();
     }
 
-    // Generate QR code on page load
-    document.addEventListener('DOMContentLoaded', generateQRCode);
+    // Generate QR code when library is loaded
+    function initQRCode() {
+        if (typeof QRCode !== 'undefined') {
+            console.log('QRCode library loaded');
+            generateQRCode();
+        } else {
+            console.log('Waiting for QRCode library...');
+            setTimeout(initQRCode, 100);
+        }
+    }
+
+    // Start initialization
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initQRCode);
+    } else {
+        initQRCode();
+    }
 </script>
 @endsection

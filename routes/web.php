@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminApprovalController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QRCodeController;
 use Illuminate\Support\Facades\Route;
@@ -18,13 +19,21 @@ Route::get('/dashboard/admin', function () {
     return view('dashboard.admin');
 })->middleware(['auth', 'verified'])->name('dashboard.admin');
 
-Route::get('/dashboard/staff', function () {
-    return view('dashboard.staff');
-})->middleware(['auth', 'verified'])->name('dashboard.staff');
+Route::get('/dashboard/staff', [DashboardController::class, 'staff'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard.staff');
 
-Route::get('/dashboard/attachee', function () {
-    return view('dashboard.attachee');
-})->middleware(['auth', 'verified'])->name('dashboard.attachee');
+Route::get('/dashboard/attachee', [DashboardController::class, 'attachee'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard.attachee');
+
+Route::get('/attendance/my-attendance', [DashboardController::class, 'myAttendance'])
+    ->middleware(['auth', 'verified'])
+    ->name('attendance.my');
+
+Route::get('/attendance/history', [DashboardController::class, 'history'])
+    ->middleware(['auth', 'verified'])
+    ->name('attendance.history');
 
 Route::get('/pending-approval', function () {
     return view('pending-approval');
@@ -39,6 +48,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/approval', [AdminApprovalController::class, 'index'])
         ->middleware(['auth'])
         ->name('admin.approval');
+    Route::get('/admin/users', [AdminApprovalController::class, 'users'])
+        ->middleware(['auth'])
+        ->name('admin.users');
     Route::post('/admin/approve/{user}', [AdminApprovalController::class, 'approve'])
         ->middleware(['auth'])
         ->name('admin.approve');
@@ -51,6 +63,18 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/activate/{user}', [AdminApprovalController::class, 'activate'])
         ->middleware(['auth'])
         ->name('admin.activate');
+    Route::post('/admin/delete/{user}', [AdminApprovalController::class, 'deleteUser'])
+        ->middleware(['auth'])
+        ->name('admin.delete');
+    Route::get('/admin/attendance', [AdminApprovalController::class, 'attendance'])
+        ->middleware(['auth'])
+        ->name('admin.attendance');
+    Route::get('/admin/reports', [AdminApprovalController::class, 'reports'])
+        ->middleware(['auth'])
+        ->name('admin.reports');
+    Route::get('/admin/reports/pdf', [AdminApprovalController::class, 'downloadPDF'])
+        ->middleware(['auth'])
+        ->name('admin.reports.pdf');
 
     // QR Code Routes
     Route::get('/qr/generate', [QRCodeController::class, 'index'])

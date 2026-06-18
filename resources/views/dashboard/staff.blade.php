@@ -97,20 +97,97 @@
         font-size: 11px;
         color: rgba(255,255,255,.5);
     }
+
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .stat-card {
+            padding: 16px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+        }
+
+        .quick-actions {
+            padding: 16px;
+        }
+
+        .section-title {
+            font-size: 16px;
+        }
+
+        .action-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .action-btn {
+            padding: 12px;
+        }
+
+        .action-btn i {
+            font-size: 20px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stats-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
 </style>
 
 <div class="stats-grid">
     <div class="stat-card">
         <div class="stat-label">Total Attendance Days</div>
-        <div class="stat-value">0</div>
+        <div class="stat-value">{{ $totalAttendanceDays }}</div>
     </div>
     <div class="stat-card">
         <div class="stat-label">Today's Status</div>
-        <div class="stat-value">--</div>
+        <div class="stat-value">{{ $todayStatus }}</div>
     </div>
     <div class="stat-card">
         <div class="stat-label">Attendance Rate</div>
-        <div class="stat-value">0%</div>
+        <div class="stat-value">{{ $attendanceRate }}%</div>
+    </div>
+</div>
+
+<div class="quick-actions" style="margin-bottom: 32px;">
+    <div class="section-title">Attendance Summary</div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+        <div style="background: rgba(255,255,255,.03); border-radius: 12px; padding: 16px; border: 1px solid rgba(255,255,255,.08);">
+            <div style="font-size: 11px; font-weight: 600; color: rgba(255,255,255,.5); text-transform: uppercase; margin-bottom: 8px;">This Week</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="color: rgba(255,255,255,.7); font-size: 14px;">Present</span>
+                <span style="color: #22c55e; font-weight: 700; font-size: 18px;">{{ $summaries['weekly']['present'] }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="color: rgba(255,255,255,.7); font-size: 14px;">Late</span>
+                <span style="color: #eab308; font-weight: 700; font-size: 18px;">{{ $summaries['weekly']['late'] }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: rgba(255,255,255,.7); font-size: 14px;">Total</span>
+                <span style="color: #fff; font-weight: 700; font-size: 18px;">{{ $summaries['weekly']['total'] }}</span>
+            </div>
+        </div>
+        <div style="background: rgba(255,255,255,.03); border-radius: 12px; padding: 16px; border: 1px solid rgba(255,255,255,.08);">
+            <div style="font-size: 11px; font-weight: 600; color: rgba(255,255,255,.5); text-transform: uppercase; margin-bottom: 8px;">This Month</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="color: rgba(255,255,255,.7); font-size: 14px;">Present</span>
+                <span style="color: #22c55e; font-weight: 700; font-size: 18px;">{{ $summaries['monthly']['present'] }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="color: rgba(255,255,255,.7); font-size: 14px;">Late</span>
+                <span style="color: #eab308; font-weight: 700; font-size: 18px;">{{ $summaries['monthly']['late'] }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: rgba(255,255,255,.7); font-size: 14px;">Total</span>
+                <span style="color: #fff; font-weight: 700; font-size: 18px;">{{ $summaries['monthly']['total'] }}</span>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -124,7 +201,7 @@
                 <div class="action-btn-sub">Check in today</div>
             </div>
         </a>
-        <a href="#" class="action-btn">
+        <a href="{{ route('attendance.history') }}" class="action-btn">
             <i class="ti ti-calendar"></i>
             <div>
                 <div class="action-btn-text">Attendance History</div>

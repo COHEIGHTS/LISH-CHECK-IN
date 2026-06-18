@@ -1,7 +1,6 @@
 <x-guest-layout>
 
 <style>
-    /* ── Reset & base ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -14,7 +13,6 @@
         justify-content: center;
     }
 
-    /* ── Background ── */
     .mesh-bg {
         position: fixed;
         inset: 0;
@@ -38,7 +36,6 @@
         pointer-events: none;
     }
 
-    /* ── Card ── */
     .register-wrapper {
         position: relative;
         z-index: 1;
@@ -56,7 +53,6 @@
         padding: 40px 36px;
     }
 
-    /* ── Header ── */
     .card-header {
         text-align: center;
         margin-bottom: 32px;
@@ -102,7 +98,6 @@
         color: rgba(255,255,255,.4);
     }
 
-    /* ── Form fields ── */
     .field { margin-bottom: 18px; }
 
     .field label {
@@ -185,11 +180,9 @@
 
     .field input.has-toggle { padding-right: 44px; }
 
-    /* valid / invalid states */
     .field input.is-valid   { border-color: rgba(52,211,153,.5); }
     .field input.is-invalid { border-color: rgba(248,113,113,.5); }
 
-    /* toggle visibility button */
     .toggle-vis {
         position: absolute;
         right: 12px;
@@ -207,7 +200,6 @@
 
     .toggle-vis:hover { color: rgba(255,255,255,.7); }
 
-    /* ── Error messages ── */
     .field-error {
         font-size: 11px;
         color: #f87171;
@@ -217,7 +209,6 @@
         gap: 4px;
     }
 
-    /* ── Password strength ── */
     .strength-wrap { margin-top: 10px; }
 
     .strength-bars {
@@ -271,7 +262,6 @@
     .hint.met { color: #34d399; }
     .hint i   { font-size: 11px; }
 
-    /* match indicator */
     .match-msg {
         font-size: 11px;
         margin-top: 5px;
@@ -283,14 +273,12 @@
     .match-msg.ok  { color: #34d399; }
     .match-msg.bad { color: #f87171; }
 
-    /* ── Divider ── */
     .divider {
         border: none;
         border-top: 1px solid rgba(255,255,255,.07);
         margin: 24px 0;
     }
 
-    /* ── Submit button ── */
     .btn-register {
         width: 100%;
         padding: 13px;
@@ -313,7 +301,6 @@
     .btn-register:hover { opacity: .9; transform: translateY(-1px); }
     .btn-register:active { transform: translateY(0); }
 
-    /* ── Footer link ── */
     .login-link {
         text-align: center;
         margin-top: 20px;
@@ -339,7 +326,6 @@
 <div class="register-wrapper">
     <div class="register-card">
 
-        {{-- Header --}}
         <div class="card-header">
             <a href="{{ url('/') }}" class="logo-wrap">
                 <div class="logo-icon">

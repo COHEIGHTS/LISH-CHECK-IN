@@ -97,6 +97,47 @@
         font-size: 11px;
         color: rgba(255,255,255,.5);
     }
+
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .stat-card {
+            padding: 16px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+        }
+
+        .quick-actions {
+            padding: 16px;
+        }
+
+        .section-title {
+            font-size: 16px;
+        }
+
+        .action-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .action-btn {
+            padding: 12px;
+        }
+
+        .action-btn i {
+            font-size: 20px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stats-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
 </style>
 
 <div class="stats-grid">

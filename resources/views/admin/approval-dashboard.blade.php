@@ -5,6 +5,70 @@
 @php $title = 'User Approvals'; @endphp
 
 <style>
+    .approval-wrapper {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 16px;
+    }
+
+    .search-filters {
+        background: rgba(255,255,255,.04);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255,255,255,.09);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 24px;
+    }
+
+    .search-form {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .search-input {
+        flex: 1;
+        min-width: 200px;
+        padding: 12px 16px;
+        background: rgba(255,255,255,.06);
+        border: 1px solid rgba(255,255,255,.1);
+        border-radius: 10px;
+        color: #fff;
+        font-size: 14px;
+        outline: none;
+        transition: border-color .2s;
+    }
+
+    .search-input:focus {
+        border-color: rgba(124,58,237,.5);
+    }
+
+    .search-input::placeholder {
+        color: rgba(255,255,255,.4);
+    }
+
+    .filter-select {
+        padding: 12px 16px;
+        background: rgba(255,255,255,.06);
+        border: 1px solid rgba(255,255,255,.1);
+        border-radius: 10px;
+        color: #fff;
+        font-size: 14px;
+        outline: none;
+        cursor: pointer;
+        transition: border-color .2s;
+    }
+
+    .filter-select:focus {
+        border-color: rgba(124,58,237,.5);
+    }
+
+    .filter-select option {
+        background: #1a1a2e;
+        color: #fff;
+    }
+
     .stats-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -184,6 +248,114 @@
         border: 1px solid rgba(52,211,153,.3);
         color: #34d399;
     }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+    }
+
+    .pagination a,
+    .pagination span {
+        padding: 8px 12px;
+        background: rgba(255,255,255,.06);
+        border: 1px solid rgba(255,255,255,.1);
+        border-radius: 8px;
+        color: #fff;
+        text-decoration: none;
+        font-size: 14px;
+        transition: all .2s;
+    }
+
+    .pagination a:hover {
+        background: rgba(124,58,237,.2);
+        border-color: rgba(124,58,237,.4);
+    }
+
+    .pagination .active {
+        background: linear-gradient(135deg, #7c3aed, #0ea5e9);
+        border-color: transparent;
+    }
+
+    .pagination .disabled {
+        opacity: .5;
+        cursor: not-allowed;
+    }
+
+    @media (max-width: 768px) {
+        .approval-wrapper {
+            padding: 0 12px;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .stat-card {
+            padding: 16px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+        }
+
+        .section {
+            padding: 16px;
+        }
+
+        .section-title {
+            font-size: 16px;
+        }
+
+        table {
+            font-size: 12px;
+        }
+
+        th, td {
+            padding: 12px 8px;
+        }
+
+        .action-btn {
+            padding: 4px 8px;
+            font-size: 11px;
+        }
+
+        .search-form {
+            flex-direction: column;
+        }
+
+        .search-input, .filter-select {
+            width: 100%;
+        }
+
+        .pagination {
+            gap: 4px;
+        }
+
+        .pagination a,
+        .pagination span {
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stats-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        th, td {
+            white-space: nowrap;
+        }
+    }
 </style>
 
 @if(session('success'))
@@ -192,7 +364,22 @@
     </div>
 @endif
 
-<div class="stats-grid">
+<div class="approval-wrapper">
+    <div class="search-filters">
+        <form action="{{ route('admin.approval') }}" method="GET" class="search-form">
+            <input type="text" name="search" class="search-input" placeholder="Search by name or email..." value="{{ request('search') }}">
+            <select name="role" class="filter-select">
+                <option value="">All Roles</option>
+                <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                <option value="staff" {{ request('role') == 'staff' ? 'selected' : '' }}>Staff</option>
+                <option value="attachee" {{ request('role') == 'attachee' ? 'selected' : '' }}>Attachee</option>
+            </select>
+            <button type="submit" class="action-btn btn-approve">Search</button>
+            <a href="{{ route('admin.approval') }}" class="action-btn btn-reject">Clear</a>
+        </form>
+    </div>
+
+    <div class="stats-grid">
     <div class="stat-card">
         <div class="stat-label">Total Users</div>
         <div class="stat-value">{{ $stats['total_users'] }}</div>
@@ -264,6 +451,11 @@
         @else
             <div class="empty-state">No pending users</div>
         @endif
+        @if($pendingUsers->hasPages())
+            <div class="pagination">
+                {{ $pendingUsers->appends(request()->query())->links() }}
+            </div>
+        @endif
     </div>
 </div>
 
@@ -305,6 +497,11 @@
             </table>
         @else
             <div class="empty-state">No approved users</div>
+        @endif
+        @if($approvedUsers->hasPages())
+            <div class="pagination">
+                {{ $approvedUsers->appends(request()->query())->links() }}
+            </div>
         @endif
     </div>
 </div>
@@ -348,6 +545,11 @@
         @else
             <div class="empty-state">No suspended users</div>
         @endif
+        @if($suspendedUsers->hasPages())
+            <div class="pagination">
+                {{ $suspendedUsers->appends(request()->query())->links() }}
+            </div>
+        @endif
     </div>
 </div>
 
@@ -380,6 +582,11 @@
             </table>
         @else
             <div class="empty-state">No rejected users</div>
+        @endif
+        @if($rejectedUsers->hasPages())
+            <div class="pagination">
+                {{ $rejectedUsers->appends(request()->query())->links() }}
+            </div>
         @endif
     </div>
 </div>
