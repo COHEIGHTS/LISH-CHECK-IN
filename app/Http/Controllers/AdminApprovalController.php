@@ -202,19 +202,25 @@ class AdminApprovalController extends Controller
                 'month' => [
                     'attended' => $monthAttendances->count(),
                     'late' => $monthAttendances->where('status', 'late')->count(),
-                    'early' => $monthAttendances->where('check_in_time', '<=', '08:30:00')->count(),
+                    'early' => $monthAttendances->filter(function($att) {
+                        return $att->check_in_time && $att->check_in_time->format('H:i:s') <= '08:30:00';
+                    })->count(),
                     'not_attended' => now()->daysInMonth - $monthAttendances->count(),
                 ],
                 'week' => [
                     'attended' => $weekAttendances->count(),
                     'late' => $weekAttendances->where('status', 'late')->count(),
-                    'early' => $weekAttendances->where('check_in_time', '<=', '08:30:00')->count(),
+                    'early' => $weekAttendances->filter(function($att) {
+                        return $att->check_in_time && $att->check_in_time->format('H:i:s') <= '08:30:00';
+                    })->count(),
                     'not_attended' => 7 - $weekAttendances->count(),
                 ],
                 'total' => [
                     'attended' => $attendances->count(),
                     'late' => $attendances->where('status', 'late')->count(),
-                    'early' => $attendances->where('check_in_time', '<=', '08:30:00')->count(),
+                    'early' => $attendances->filter(function($att) {
+                        return $att->check_in_time && $att->check_in_time->format('H:i:s') <= '08:30:00';
+                    })->count(),
                 ]
             ];
         }
@@ -229,14 +235,46 @@ class AdminApprovalController extends Controller
         }
 
         $users = User::where('role', '!=', 'admin')->orderBy('name')->get();
-        $attendances = Attendance::latest()->paginate(6)->withQueryString();
+        
+        $query = Attendance::with('user');
+        
+        // Search by user name
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->whereHas('user', function($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%');
+            });
+        }
+        
+        // Filter by status
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status', $request->status);
+        }
+        
+        // Filter by date range
+        if ($request->has('date_from') && $request->date_from != '') {
+            $query->where('attendance_date', '>=', $request->date_from);
+        }
+        
+        if ($request->has('date_to') && $request->date_to != '') {
+            $query->where('attendance_date', '<=', $request->date_to);
+        }
+        
+        $attendances = $query->latest()->paginate(6)->withQueryString();
 
         // Analytics data
+        $totalAttendance = Attendance::count();
+        $totalPresent = Attendance::where('status', 'present')->count();
+        $totalLate = Attendance::where('status', 'late')->count();
+        
+        // Calculate attendance rate based on present + late vs total
+        $attendanceRate = $totalAttendance > 0 ? round((($totalPresent + $totalLate) / $totalAttendance) * 100, 2) : 0;
+        
         $analytics = [
             'total_users' => $users->count(),
-            'total_attendance_records' => Attendance::count(),
-            'attendance_rate' => $users->count() > 0 ? round((Attendance::count() / ($users->count() * 30)) * 100, 2) : 0,
-            'late_rate' => Attendance::count() > 0 ? round((Attendance::where('status', 'late')->count() / Attendance::count()) * 100, 2) : 0,
+            'total_attendance_records' => $totalAttendance,
+            'attendance_rate' => $attendanceRate,
+            'late_rate' => $totalAttendance > 0 ? round(($totalLate / $totalAttendance) * 100, 2) : 0,
             'by_role' => [
                 'staff' => [
                     'total' => $users->where('role', 'staff')->count(),
@@ -311,11 +349,18 @@ class AdminApprovalController extends Controller
         $attendances = Attendance::all();
 
         // Analytics data
+        $totalAttendance = $attendances->count();
+        $totalPresent = $attendances->where('status', 'present')->count();
+        $totalLate = $attendances->where('status', 'late')->count();
+        
+        // Calculate attendance rate based on present + late vs total
+        $attendanceRate = $totalAttendance > 0 ? round((($totalPresent + $totalLate) / $totalAttendance) * 100, 2) : 0;
+        
         $analytics = [
             'total_users' => $users->count(),
-            'total_attendance_records' => $attendances->count(),
-            'attendance_rate' => $users->count() > 0 ? round(($attendances->count() / ($users->count() * 30)) * 100, 2) : 0,
-            'late_rate' => $attendances->count() > 0 ? round(($attendances->where('status', 'late')->count() / $attendances->count()) * 100, 2) : 0,
+            'total_attendance_records' => $totalAttendance,
+            'attendance_rate' => $attendanceRate,
+            'late_rate' => $totalAttendance > 0 ? round(($totalLate / $totalAttendance) * 100, 2) : 0,
             'by_role' => [
                 'staff' => [
                     'total' => $users->where('role', 'staff')->count(),

@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'check.status' => \App\Http\Middleware\CheckUserStatus::class,
             'role.redirect' => \App\Http\Middleware\RedirectBasedOnRole::class,
+            'profile.complete' => \App\Http\Middleware\EnsureProfileIsComplete::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

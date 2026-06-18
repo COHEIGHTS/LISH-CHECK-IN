@@ -164,9 +164,13 @@
             {{-- User Info --}}
             <div class="p-4 border-t border-white/10">
                 <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
-                        <span class="text-white font-semibold">{{ auth()->user()->name[0] }}</span>
-                    </div>
+                    @if(auth()->user()->profile_photo_path)
+                        <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="{{ auth()->user()->name }}" class="w-10 h-10 rounded-full object-cover">
+                    @else
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
+                            <span class="text-white font-semibold">{{ auth()->user()->name[0] }}</span>
+                        </div>
+                    @endif
                     <div class="flex-1 min-w-0">
                         <div class="font-semibold text-sm truncate">{{ auth()->user()->name }}</div>
                         <div class="text-xs text-white/50 truncate">{{ auth()->user()->email }}</div>

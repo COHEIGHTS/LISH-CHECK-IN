@@ -25,6 +25,22 @@ class User extends Authenticatable
         'role',
         'status',
         'profile_completed',
+        'phone_number',
+        'national_id',
+        'age',
+        'gender',
+        'date_of_birth',
+        'county_of_birth',
+        'county_of_residence',
+        'physical_address',
+        'emergency_contact',
+        'profile_photo_path',
+        'institution',
+        'course',
+        'attachment_start_date',
+        'attachment_end_date',
+        'department',
+        'position',
     ];
 
     /**
@@ -48,6 +64,9 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'profile_completed' => 'boolean',
+            'date_of_birth' => 'date',
+            'attachment_start_date' => 'date',
+            'attachment_end_date' => 'date',
         ];
     }
 

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminApprovalController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProfileSetupController;
 use App\Http\Controllers\QRCodeController;
 use Illuminate\Support\Facades\Route;
 
@@ -40,6 +41,10 @@ Route::get('/pending-approval', function () {
 })->middleware(['auth'])->name('pending.approval');
 
 Route::middleware('auth')->group(function () {
+    // Profile Setup Routes
+    Route::get('/profile/setup', [ProfileSetupController::class, 'show'])->name('profile.setup');
+    Route::post('/profile/setup', [ProfileSetupController::class, 'store'])->name('profile.setup.store');
+    
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

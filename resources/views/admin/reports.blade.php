@@ -544,6 +544,45 @@
         <div class="table-header">
             <h3>Recent Attendance Records</h3>
         </div>
+        
+        <form method="GET" action="{{ route('admin.reports') }}" style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,.09);">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                <div>
+                    <label style="display: block; font-size: 12px; color: rgba(255,255,255,.5); margin-bottom: 6px; font-weight: 600;">Search User</label>
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name..." 
+                           style="width: 100%; padding: 10px 14px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; color: #fff; font-size: 14px;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 12px; color: rgba(255,255,255,.5); margin-bottom: 6px; font-weight: 600;">Status</label>
+                    <select name="status" style="width: 100%; padding: 10px 14px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; color: #fff; font-size: 14px;">
+                        <option value="">All Statuses</option>
+                        <option value="attended" {{ request('status') == 'attended' ? 'selected' : '' }}>Attended</option>
+                        <option value="late" {{ request('status') == 'late' ? 'selected' : '' }}>Late</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 12px; color: rgba(255,255,255,.5); margin-bottom: 6px; font-weight: 600;">Date From</label>
+                    <input type="date" name="date_from" value="{{ request('date_from') }}" 
+                           style="width: 100%; padding: 10px 14px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; color: #fff; font-size: 14px;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 12px; color: rgba(255,255,255,.5); margin-bottom: 6px; font-weight: 600;">Date To</label>
+                    <input type="date" name="date_to" value="{{ request('date_to') }}" 
+                           style="width: 100%; padding: 10px 14px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; color: #fff; font-size: 14px;">
+                </div>
+                <div style="display: flex; align-items: flex-end;">
+                    <button type="submit" 
+                            style="padding: 10px 20px; background: linear-gradient(135deg, #7c3aed, #0ea5e9); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity .2s;">
+                        Search
+                    </button>
+                    <a href="{{ route('admin.reports') }}" 
+                       style="padding: 10px 20px; background: rgba(255,255,255,.06); color: #fff; border: 1px solid rgba(255,255,255,.1); border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; margin-left: 8px;">
+                        Clear
+                    </a>
+                </div>
+            </div>
+        </form>
+        
         <table>
             <thead>
                 <tr>

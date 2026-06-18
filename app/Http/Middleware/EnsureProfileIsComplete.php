@@ -4,10 +4,10 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
-class RedirectBasedOnRole
+class EnsureProfileIsComplete
 {
     /**
      * Handle an incoming request.
@@ -16,13 +16,9 @@ class RedirectBasedOnRole
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check()) {
-            $user = Auth::user();
-            $role = $user->role;
-
-            // Check if user needs to complete profile (non-admin users only)
-            if ($role !== 'admin' && $user->status === 'approved' && !$user->profile_completed) {
-                // Allow access to profile setup routes
+        if (Auth::check() && Auth::user()->role !== 'admin') {
+            if (Auth::user()->status === 'approved' && !Auth::user()->profile_completed) {
+                // Allow access to profile setup route
                 if ($request->route()->getName() === 'profile.setup' || $request->route()->getName() === 'profile.setup.store') {
                     return $next($request);
                 }
@@ -35,19 +31,8 @@ class RedirectBasedOnRole
                 // Redirect to profile setup
                 return redirect()->route('profile.setup');
             }
-
-            // Redirect based on role
-            if ($request->is('dashboard')) {
-                if ($role === 'admin') {
-                    return redirect()->route('dashboard.admin');
-                } elseif ($role === 'staff') {
-                    return redirect()->route('dashboard.staff');
-                } elseif ($role === 'attachee') {
-                    return redirect()->route('dashboard.attachee');
-                }
-            }
         }
-
+        
         return $next($request);
     }
 }

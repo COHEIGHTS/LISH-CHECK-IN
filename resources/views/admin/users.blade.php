@@ -209,6 +209,31 @@
         color: #9ca3af;
     }
 
+    .profile-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .profile-complete {
+        background: rgba(52,211,153,.15);
+        color: #34d399;
+    }
+
+    .profile-incomplete {
+        background: rgba(251,191,36,.15);
+        color: #fbbf24;
+    }
+
+    .profile-not-applicable {
+        background: rgba(107,114,128,.15);
+        color: #9ca3af;
+    }
+
     .action-btn {
         padding: 6px 12px;
         border-radius: 6px;
@@ -463,6 +488,7 @@
                     <th>Email</th>
                     <th>Role</th>
                     <th>Status</th>
+                    <th>Profile</th>
                     <th>Registration Date</th>
                     <th>Actions</th>
                 </tr>
@@ -481,6 +507,15 @@
                             <span class="status-badge status-{{ $user->status }}">
                                 {{ ucfirst($user->status) }}
                             </span>
+                        </td>
+                        <td>
+                            @if($user->role === 'admin')
+                                <span class="profile-badge profile-not-applicable">N/A</span>
+                            @elseif($user->profile_completed)
+                                <span class="profile-badge profile-complete">Complete</span>
+                            @else
+                                <span class="profile-badge profile-incomplete">Incomplete</span>
+                            @endif
                         </td>
                         <td>{{ $user->created_at->format('M d, Y') }}</td>
                         <td>
