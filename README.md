@@ -94,6 +94,7 @@ QR Attendance Check-In
 ## Developed By
 
 **Maithya Ndavi**
+collinsheights@gmail.com/ +254112225426
 Software Engineer, Lish AI Labs
 
 Building intelligent, scalable, and impactful software solutions.
