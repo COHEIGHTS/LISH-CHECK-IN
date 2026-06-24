@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 18, 2026 at 03:04 PM
+-- Generation Time: Jun 24, 2026 at 11:26 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -1754,7 +1754,9 @@ INSERT INTO `attendances` (`id`, `user_id`, `attendance_date`, `check_in_time`, 
 (1704, 26, '2026-06-11', '08:54:00', '17:08:00', 'late', NULL, NULL, '2026-06-18 12:27:40', '2026-06-18 12:27:40'),
 (1705, 26, '2026-06-12', '09:03:00', '17:22:00', 'late', NULL, NULL, '2026-06-18 12:27:40', '2026-06-18 12:27:40'),
 (1706, 26, '2026-06-15', '08:05:00', '17:28:00', 'late', NULL, NULL, '2026-06-18 12:27:40', '2026-06-18 12:27:40'),
-(1707, 26, '2026-06-17', '08:32:00', '17:26:00', 'late', NULL, NULL, '2026-06-18 12:27:40', '2026-06-18 12:27:40');
+(1707, 26, '2026-06-17', '08:32:00', '17:26:00', 'late', NULL, NULL, '2026-06-18 12:27:40', '2026-06-18 12:27:40'),
+(1708, 30, '2026-06-24', '11:00:39', NULL, 'late', 'gf3qvtpAVfHaT7SBm6WfyD03pKTO3b28-2026-06-24', NULL, '2026-06-24 08:00:39', '2026-06-24 08:00:39'),
+(1709, 28, '2026-06-24', '08:35:29', NULL, 'present', 'gf3qvtpAVfHaT7SBm6WfyD03pKTO3b28-2026-06-24', NULL, '2026-06-24 08:35:29', '2026-06-24 08:35:29');
 
 -- --------------------------------------------------------
 
@@ -1773,7 +1775,8 @@ CREATE TABLE `cache` (
 --
 
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
-('laravel-cache-daily_qr_token_2026-06-18', 's:43:\"RuQIA0wZnTeB5yGZCjh9daVv1vFZOfNE-2026-06-18\";', 1781827200);
+('laravel-cache-daily_qr_token_2026-06-18', 's:43:\"RuQIA0wZnTeB5yGZCjh9daVv1vFZOfNE-2026-06-18\";', 1781827200),
+('laravel-cache-daily_qr_token_2026-06-24', 's:43:\"gf3qvtpAVfHaT7SBm6WfyD03pKTO3b28-2026-06-24\";', 1782334800);
 
 -- --------------------------------------------------------
 
@@ -1841,6 +1844,34 @@ CREATE TABLE `job_batches` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `leaves`
+--
+
+CREATE TABLE `leaves` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `type` enum('sick','vacation','personal','other') NOT NULL,
+  `start_date` date NOT NULL,
+  `end_date` date NOT NULL,
+  `reason` text DEFAULT NULL,
+  `status` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+  `admin_notes` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `leaves`
+--
+
+INSERT INTO `leaves` (`id`, `user_id`, `type`, `start_date`, `end_date`, `reason`, `status`, `admin_notes`, `created_at`, `updated_at`) VALUES
+(1, 28, 'sick', '2026-06-24', '2026-06-26', 'good', 'approved', 'why', '2026-06-24 09:07:46', '2026-06-24 09:08:17'),
+(2, 28, 'personal', '2026-06-24', '2026-07-10', 'fgghh', 'rejected', 'nnmn,', '2026-06-24 09:08:51', '2026-06-24 09:09:12'),
+(3, 28, 'vacation', '2026-06-24', '2026-07-10', 'ffgg', 'approved', NULL, '2026-06-24 09:14:58', '2026-06-24 09:20:36');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `migrations`
 --
 
@@ -1863,7 +1894,8 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (6, '2026_06_16_081157_add_status_to_users_table', 3),
 (8, '2026_06_16_082532_add_profile_completed_to_users_table', 4),
 (10, '2026_06_16_083057_create_attendances_table', 5),
-(11, '2026_06_18_144447_add_profile_fields_to_users_table', 5);
+(11, '2026_06_18_144447_add_profile_fields_to_users_table', 5),
+(12, '2026_06_24_115759_create_leaves_table', 6);
 
 -- --------------------------------------------------------
 
@@ -1897,8 +1929,9 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('FQqY4pHMQFXLOu7jmgH6plc68ahiRvUdQ3gdibmt', 28, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiU3pXQmN0S3dWdWphdWpyNDNKRTIyZ2RwWkgyOXM2QlAzbGxLbGpxQyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mjk6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9wcm9maWxlIjtzOjU6InJvdXRlIjtzOjEyOiJwcm9maWxlLmVkaXQiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToyODt9', 1781787486),
-('RyaRLnvkRhreAMPGa32POhjgBKugdyUUC2P9ifFi', 4, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiMEtMUVdnWXlpU2FoTGd0cUZGT1VKY3FKNWlwYjJmUXVRcElqZDh2SiI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MzY6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9hcHByb3ZhbCI7czo1OiJyb3V0ZSI7czoxNDoiYWRtaW4uYXBwcm92YWwiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTo0O30=', 1781787365);
+('5QleihJ37JEGEr2DIQKA0ZSgJEw1s4isgUk93V93', 28, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiYTJkRDhZRGtCbUlUUlg4aGhHRTY1RmtyRnV2UUptTHVvaWRySkdXbyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sZWF2ZSI7czo1OiJyb3V0ZSI7czoxMToibGVhdmUuaW5kZXgiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToyODt9', 1782292543),
+('jnGnH69RAVq8j7vBffMVyiTovbyGdhj9ZFRm8Yc1', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.125.0 Chrome/148.0.7778.97 Electron/42.2.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiaWxuZU83dGdTNFExaTJMWHBHQzJ1TkxaR2hIYkM4emJrZ0RodTVETSI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7czo1OiJyb3V0ZSI7Tjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==', 1782286674),
+('nzA2NdxietY54gGOdH8WBL1ohESWalDxhstJh6rT', 4, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiN0k4NGRSWkcwVzhadTVNRmN0MHQzVzI1OE56OVhScHhNSGd0Ym9pRSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MzM6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9sZWF2ZSI7czo1OiJyb3V0ZSI7czoxNzoiYWRtaW4ubGVhdmUuaW5kZXgiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTo0O30=', 1782292836);
 
 -- --------------------------------------------------------
 
@@ -1963,7 +1996,8 @@ INSERT INTO `users` (`id`, `name`, `email`, `role`, `status`, `profile_completed
 (24, 'Catherine Nyambura', 'catherine.nyambura@gmail.com', 'staff', 'approved', 1, NULL, '$2y$12$2o7eaA7kZbVyC39BVM.QWuvUzsqXkPIXOC76/vuY/XhFMh.vvFL1e', NULL, '2026-06-18 11:19:55', '2026-06-18 11:19:55', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (25, 'Francis Maina', 'francis.maina@gmail.com', 'attachee', 'approved', 1, NULL, '$2y$12$2o7eaA7kZbVyC39BVM.QWuvUzsqXkPIXOC76/vuY/XhFMh.vvFL1e', NULL, '2026-06-18 11:19:55', '2026-06-18 11:19:55', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (26, 'Margaret Atieno', 'margaret.atieno@gmail.com', 'staff', 'approved', 1, NULL, '$2y$12$2o7eaA7kZbVyC39BVM.QWuvUzsqXkPIXOC76/vuY/XhFMh.vvFL1e', NULL, '2026-06-18 11:19:55', '2026-06-18 11:19:55', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(28, 'NDAVI', 'collinsheights@gmail.com', 'staff', 'approved', 1, NULL, '$2y$12$CUIpM5q71hE0As0z/VBuDOwBuWDnH9tENN4usm1ZRrY9kMlGMnlDS', NULL, '2026-06-18 12:55:58', '2026-06-18 12:57:37', '+254742702766', '300018273', 26, 'male', '2001-12-31', 'nairobi', 'nairobi', '0112225426', '0795423425', 'profile-photos/iW9jT94WWQ1KQImux7CyAhuinZkIaoIfhrKiVPXX.jpg', NULL, NULL, NULL, NULL, 'ICT DEPARTMENT', 'softwre engineer');
+(28, 'NDAVI', 'collinsheights@gmail.com', 'staff', 'approved', 1, NULL, '$2y$12$CUIpM5q71hE0As0z/VBuDOwBuWDnH9tENN4usm1ZRrY9kMlGMnlDS', NULL, '2026-06-18 12:55:58', '2026-06-18 12:57:37', '+254742702766', '300018273', 26, 'male', '2001-12-31', 'nairobi', 'nairobi', '0112225426', '0795423425', 'profile-photos/iW9jT94WWQ1KQImux7CyAhuinZkIaoIfhrKiVPXX.jpg', NULL, NULL, NULL, NULL, 'ICT DEPARTMENT', 'softwre engineer'),
+(30, 'masaka robert', 'collinsheights14@gmail.com', 'staff', 'approved', 1, NULL, '$2y$12$fVJWO6zyIDIv3V/xe73Ss.AyKfsQnuNU6X.ZMcLIJsamvutSrizGW', NULL, '2026-06-24 07:49:33', '2026-06-24 08:03:23', '+254742702766', '40013965', 23, 'male', '2003-06-01', 'nairobi', 'nairobi', '0112225426', '+254742702766', 'profile-photos/wcH2bdOvLbGFfalVQfApFGsUlHZO4Fi5nxsDWTcL.jpg', NULL, NULL, NULL, NULL, 'ICT DEPARTMENT', 'software engineer');
 
 --
 -- Indexes for dumped tables
@@ -2011,6 +2045,13 @@ ALTER TABLE `job_batches`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `leaves`
+--
+ALTER TABLE `leaves`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `leaves_user_id_foreign` (`user_id`);
+
+--
 -- Indexes for table `migrations`
 --
 ALTER TABLE `migrations`
@@ -2046,7 +2087,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `attendances`
 --
 ALTER TABLE `attendances`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1708;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1710;
 
 --
 -- AUTO_INCREMENT for table `failed_jobs`
@@ -2061,16 +2102,22 @@ ALTER TABLE `jobs`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `leaves`
+--
+ALTER TABLE `leaves`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- Constraints for dumped tables
@@ -2081,6 +2128,12 @@ ALTER TABLE `users`
 --
 ALTER TABLE `attendances`
   ADD CONSTRAINT `attendances_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `leaves`
+--
+ALTER TABLE `leaves`
+  ADD CONSTRAINT `leaves_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
