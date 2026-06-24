@@ -395,6 +395,121 @@
             </div>
         </div>
 
+        <!-- Weekly Summary -->
+        <div class="section">
+            <div class="section-title">This Week's Attendance Summary</div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">{{ $summary['week']['attended'] }}</div>
+                    <div class="stat-label">Total Attended</div>
+                    <div class="stat-change positive">Present + Late</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ $summary['week']['late'] }}</div>
+                    <div class="stat-label">Total Late</div>
+                    <div class="stat-change {{ $summary['week']['late'] <= 5 ? 'positive' : 'negative' }}">
+                        {{ $summary['week']['late'] <= 5 ? 'Good' : 'High' }}
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ $summary['week']['early'] }}</div>
+                    <div class="stat-label">Total Early</div>
+                    <div class="stat-change positive">Before 8:30 AM</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ $summary['week']['not_attended'] }}</div>
+                    <div class="stat-label">Not Attended</div>
+                    <div class="stat-change negative">This week</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Summary -->
+        <div class="section">
+            <div class="section-title">This Month's Attendance Summary</div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">{{ $summary['month']['attended'] }}</div>
+                    <div class="stat-label">Total Attended</div>
+                    <div class="stat-change positive">Present + Late</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ $summary['month']['late'] }}</div>
+                    <div class="stat-label">Total Late</div>
+                    <div class="stat-change {{ $summary['month']['late'] <= 20 ? 'positive' : 'negative' }}">
+                        {{ $summary['month']['late'] <= 20 ? 'Good' : 'High' }}
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ $summary['month']['early'] }}</div>
+                    <div class="stat-label">Total Early</div>
+                    <div class="stat-change positive">Before 8:30 AM</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ $summary['month']['not_attended'] }}</div>
+                    <div class="stat-label">Not Attended</div>
+                    <div class="stat-change negative">This month</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Summary -->
+        <div class="section">
+            <div class="section-title">All-Time Attendance Summary</div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">{{ $summary['total']['attended'] }}</div>
+                    <div class="stat-label">Total Attended</div>
+                    <div class="stat-change positive">Present + Late</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ $summary['total']['late'] }}</div>
+                    <div class="stat-label">Total Late</div>
+                    <div class="stat-change {{ $summary['total']['late'] <= 100 ? 'positive' : 'negative' }}">
+                        {{ $summary['total']['late'] <= 100 ? 'Good' : 'High' }}
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ $summary['total']['early'] }}</div>
+                    <div class="stat-label">Total Early</div>
+                    <div class="stat-change positive">Before 8:30 AM</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed User Attendance -->
+        <div class="section">
+            <div class="section-title">Detailed User Attendance</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>Week Attended</th>
+                        <th>Week Late</th>
+                        <th>Month Attended</th>
+                        <th>Month Late</th>
+                        <th>Total Attended</th>
+                        <th>Total Late</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($attendanceSummaries as $data)
+                        <tr>
+                            <td>{{ $data['user']->name }}</td>
+                            <td>{{ ucfirst($data['user']->role) }}</td>
+                            <td>{{ $data['week']['attended'] }}</td>
+                            <td>{{ $data['week']['late'] }}</td>
+                            <td>{{ $data['month']['attended'] }}</td>
+                            <td>{{ $data['month']['late'] }}</td>
+                            <td>{{ $data['total']['attended'] }}</td>
+                            <td>{{ $data['total']['late'] }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
         <!-- Recent Records -->
         <div class="section">
             <div class="section-title">Recent Attendance Records</div>

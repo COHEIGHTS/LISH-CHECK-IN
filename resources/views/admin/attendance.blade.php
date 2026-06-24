@@ -375,19 +375,19 @@
 
     <div class="summary-cards">
         <div class="summary-card">
-            <div class="summary-value" id="total-attended">0</div>
+            <div class="summary-value" id="total-attended">{{ $summary['week']['attended'] }}</div>
             <div class="summary-label">Total Attended</div>
         </div>
         <div class="summary-card">
-            <div class="summary-value" id="total-late">0</div>
+            <div class="summary-value" id="total-late">{{ $summary['week']['late'] }}</div>
             <div class="summary-label">Total Late</div>
         </div>
         <div class="summary-card">
-            <div class="summary-value" id="total-early">0</div>
+            <div class="summary-value" id="total-early">{{ $summary['week']['early'] }}</div>
             <div class="summary-label">Total Early</div>
         </div>
         <div class="summary-card">
-            <div class="summary-value" id="total-not-attended">0</div>
+            <div class="summary-value" id="total-not-attended">{{ $summary['week']['not_attended'] }}</div>
             <div class="summary-label">Total Not Attended</div>
         </div>
     </div>
@@ -455,6 +455,8 @@
 </div>
 
 <script>
+    const summaryData = @json($summary);
+
     function showPeriod(period) {
         // Update tab styles
         document.querySelectorAll('.period-tab').forEach(tab => {
@@ -471,33 +473,20 @@
             }
         });
 
-        // Update summary cards
+        // Update summary cards with server-side data
         updateSummary(period);
     }
 
     function updateSummary(period) {
-        const attendanceData = @json($attendanceData);
-        let totalAttended = 0;
-        let totalLate = 0;
-        let totalEarly = 0;
-        let totalNotAttended = 0;
-
-        Object.values(attendanceData).forEach(data => {
-            totalAttended += data[period]['attended'];
-            totalLate += data[period]['late'];
-            totalEarly += data[period]['early'];
-            if (data[period]['not_attended'] !== '-') {
-                totalNotAttended += data[period]['not_attended'];
-            }
-        });
-
-        document.getElementById('total-attended').textContent = totalAttended;
-        document.getElementById('total-late').textContent = totalLate;
-        document.getElementById('total-early').textContent = totalEarly;
-        document.getElementById('total-not-attended').textContent = totalNotAttended;
+        document.getElementById('total-attended').textContent = summaryData[period]['attended'];
+        document.getElementById('total-late').textContent = summaryData[period]['late'];
+        document.getElementById('total-early').textContent = summaryData[period]['early'];
+        
+        if (period === 'total') {
+            document.getElementById('total-not-attended').textContent = '-';
+        } else {
+            document.getElementById('total-not-attended').textContent = summaryData[period]['not_attended'];
+        }
     }
-
-    // Initialize with week data
-    updateSummary('week');
 </script>
 @endsection

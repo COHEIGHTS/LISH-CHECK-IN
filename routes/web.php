@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\AdminApprovalController;
+use App\Http\Controllers\AdminLeaveController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfileSetupController;
 use App\Http\Controllers\QRCodeController;
@@ -91,6 +93,40 @@ Route::middleware('auth')->group(function () {
     Route::post('/qr/verify', [QRCodeController::class, 'verify'])
         ->middleware(['auth'])
         ->name('qr.verify');
+
+    // Leave Management Routes (User)
+    Route::get('/leave', [LeaveController::class, 'index'])
+        ->middleware(['auth'])
+        ->name('leave.index');
+    Route::get('/leave/create', [LeaveController::class, 'create'])
+        ->middleware(['auth'])
+        ->name('leave.create');
+    Route::post('/leave', [LeaveController::class, 'store'])
+        ->middleware(['auth'])
+        ->name('leave.store');
+    Route::get('/leave/{leave}', [LeaveController::class, 'show'])
+        ->middleware(['auth'])
+        ->name('leave.show');
+    Route::delete('/leave/{leave}', [LeaveController::class, 'destroy'])
+        ->middleware(['auth'])
+        ->name('leave.destroy');
+
+    // Leave Management Routes (Admin)
+    Route::get('/admin/leave', [AdminLeaveController::class, 'index'])
+        ->middleware(['auth'])
+        ->name('admin.leave.index');
+    Route::get('/admin/leave/{leave}', [AdminLeaveController::class, 'show'])
+        ->middleware(['auth'])
+        ->name('admin.leave.show');
+    Route::post('/admin/leave/{leave}/approve', [AdminLeaveController::class, 'approve'])
+        ->middleware(['auth'])
+        ->name('admin.leave.approve');
+    Route::post('/admin/leave/{leave}/reject', [AdminLeaveController::class, 'reject'])
+        ->middleware(['auth'])
+        ->name('admin.leave.reject');
+    Route::delete('/admin/leave/{leave}', [AdminLeaveController::class, 'destroy'])
+        ->middleware(['auth'])
+        ->name('admin.leave.destroy');
 });
 
 require __DIR__.'/auth.php';

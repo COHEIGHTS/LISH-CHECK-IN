@@ -85,6 +85,48 @@
         font-family: 'Courier New', monospace;
     }
 
+    .token-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .token-text {
+        flex: 1;
+        font-size: 14px;
+        font-weight: 600;
+        color: #a78bfa;
+        word-break: break-all;
+        font-family: 'Courier New', monospace;
+    }
+
+    .btn-copy {
+        background: rgba(124,58,237,.15);
+        border: 1px solid rgba(124,58,237,.3);
+        color: #a78bfa;
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all .2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    .btn-copy:hover {
+        background: rgba(124,58,237,.25);
+        border-color: rgba(124,58,237,.5);
+    }
+
+    .btn-copy.copied {
+        background: rgba(52,211,153,.15);
+        border-color: rgba(52,211,153,.3);
+        color: #34d399;
+    }
+
     .info-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -178,7 +220,13 @@
 
         <div class="token-display">
             <div class="token-label">Today's QR Token</div>
-            <div class="token-value">{{ $qrToken }}</div>
+            <div class="token-wrapper">
+                <div class="token-text" id="tokenText">{{ $qrToken }}</div>
+                <button onclick="copyToken()" class="btn-copy" id="copyBtn">
+                    <i class="ti ti-copy" id="copyIcon"></i>
+                    <span id="copyText">Copy</span>
+                </button>
+            </div>
         </div>
 
         <div style="background: rgba(52,211,153,.1); border: 1px solid rgba(52,211,153,.3); border-radius: 12px; padding: 16px; margin-bottom: 24px; text-align: left;">
@@ -237,16 +285,38 @@
     function downloadQRCode() {
         const qrContainer = document.getElementById('qrcode');
         const img = qrContainer.querySelector('img');
-        
+
         if (!img) {
             alert('Please generate the QR code first');
             return;
         }
-        
+
         const link = document.createElement('a');
         link.download = 'qr-code-{{ $today }}.png';
         link.href = img.src;
         link.click();
+    }
+
+    function copyToken() {
+        const tokenText = document.getElementById('tokenText').textContent;
+        const copyBtn = document.getElementById('copyBtn');
+        const copyIcon = document.getElementById('copyIcon');
+        const copyText = document.getElementById('copyText');
+
+        navigator.clipboard.writeText(tokenText).then(() => {
+            copyBtn.classList.add('copied');
+            copyIcon.className = 'ti ti-check';
+            copyText.textContent = 'Copied!';
+
+            setTimeout(() => {
+                copyBtn.classList.remove('copied');
+                copyIcon.className = 'ti ti-copy';
+                copyText.textContent = 'Copy';
+            }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy token:', err);
+            alert('Failed to copy token. Please try again.');
+        });
     }
 
     // Generate QR code when library is loaded

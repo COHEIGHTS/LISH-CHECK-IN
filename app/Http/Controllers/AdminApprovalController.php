@@ -181,51 +181,140 @@ class AdminApprovalController extends Controller
         $users = $query->paginate(10)->withQueryString();
         $attendanceData = [];
 
+        // Get all users for summary calculation (not just paginated)
+        $allUsersQuery = User::where('role', '!=', 'admin')->orderBy('name');
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $allUsersQuery->where(function($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('email', 'like', '%' . $search . '%');
+            });
+        }
+        if ($request->has('role') && $request->role != '') {
+            $allUsersQuery->where('role', $request->role);
+        }
+        $allUsers = $allUsersQuery->get();
+
+        // Initialize summary counters
+        $summary = [
+            'week' => ['attended' => 0, 'late' => 0, 'early' => 0, 'not_attended' => 0],
+            'month' => ['attended' => 0, 'late' => 0, 'early' => 0, 'not_attended' => 0],
+            'total' => ['attended' => 0, 'late' => 0, 'early' => 0]
+        ];
+
+        // Calculate summary from all users
+        foreach ($allUsers as $user) {
+            $attendances = Attendance::where('user_id', $user->id)->get();
+            
+            // Current month stats
+            $currentMonthStart = now()->startOfMonth();
+            $currentMonthEnd = now()->endOfMonth();
+            $monthAttendances = $attendances->filter(function($att) use ($currentMonthStart, $currentMonthEnd) {
+                return $att->attendance_date >= $currentMonthStart && $att->attendance_date <= $currentMonthEnd;
+            });
+
+            // Current week stats (Monday to Sunday)
+            $currentWeekStart = now()->startOfWeek();
+            $currentWeekEnd = now()->endOfWeek();
+            $weekAttendances = $attendances->filter(function($att) use ($currentWeekStart, $currentWeekEnd) {
+                return $att->attendance_date >= $currentWeekStart && $att->attendance_date <= $currentWeekEnd;
+            });
+
+            // Count attended (present + late)
+            $monthAttended = $monthAttendances->filter(function($att) {
+                return in_array($att->status, ['present', 'late']);
+            })->count();
+            
+            $weekAttended = $weekAttendances->filter(function($att) {
+                return in_array($att->status, ['present', 'late']);
+            })->count();
+
+            $totalAttended = $attendances->filter(function($att) {
+                return in_array($att->status, ['present', 'late']);
+            })->count();
+
+            // Accumulate summary data
+            $summary['week']['attended'] += $weekAttended;
+            $summary['week']['late'] += $weekAttendances->where('status', 'late')->count();
+            $summary['week']['early'] += $weekAttendances->filter(function($att) {
+                return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time->format('H:i:s') <= '09:00:00';
+            })->count();
+            $summary['week']['not_attended'] += (7 - $weekAttendances->count());
+
+            $summary['month']['attended'] += $monthAttended;
+            $summary['month']['late'] += $monthAttendances->where('status', 'late')->count();
+            $summary['month']['early'] += $monthAttendances->filter(function($att) {
+                return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time->format('H:i:s') <= '09:00:00';
+            })->count();
+            $summary['month']['not_attended'] += (now()->daysInMonth - $monthAttendances->count());
+
+            $summary['total']['attended'] += $totalAttended;
+            $summary['total']['late'] += $attendances->where('status', 'late')->count();
+            $summary['total']['early'] += $attendances->filter(function($att) {
+                return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time->format('H:i:s') <= '09:00:00';
+            })->count();
+        }
+
+        // Now calculate individual user data for paginated users
         foreach ($users as $user) {
             $attendances = Attendance::where('user_id', $user->id)->get();
             
             // Current month stats
-            $currentMonth = now()->format('Y-m');
-            $monthAttendances = $attendances->filter(function($att) use ($currentMonth) {
-                return $att->attendance_date->format('Y-m') === $currentMonth;
+            $currentMonthStart = now()->startOfMonth();
+            $currentMonthEnd = now()->endOfMonth();
+            $monthAttendances = $attendances->filter(function($att) use ($currentMonthStart, $currentMonthEnd) {
+                return $att->attendance_date >= $currentMonthStart && $att->attendance_date <= $currentMonthEnd;
             });
 
-            // Current week stats
+            // Current week stats (Monday to Sunday)
             $currentWeekStart = now()->startOfWeek();
             $currentWeekEnd = now()->endOfWeek();
             $weekAttendances = $attendances->filter(function($att) use ($currentWeekStart, $currentWeekEnd) {
-                return $att->attendance_date->between($currentWeekStart, $currentWeekEnd);
+                return $att->attendance_date >= $currentWeekStart && $att->attendance_date <= $currentWeekEnd;
             });
+
+            // Count attended (present + late)
+            $monthAttended = $monthAttendances->filter(function($att) {
+                return in_array($att->status, ['present', 'late']);
+            })->count();
+            
+            $weekAttended = $weekAttendances->filter(function($att) {
+                return in_array($att->status, ['present', 'late']);
+            })->count();
+
+            $totalAttended = $attendances->filter(function($att) {
+                return in_array($att->status, ['present', 'late']);
+            })->count();
 
             $attendanceData[$user->id] = [
                 'user' => $user,
                 'month' => [
-                    'attended' => $monthAttendances->count(),
+                    'attended' => $monthAttended,
                     'late' => $monthAttendances->where('status', 'late')->count(),
                     'early' => $monthAttendances->filter(function($att) {
-                        return $att->check_in_time && $att->check_in_time->format('H:i:s') <= '08:30:00';
+                        return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time->format('H:i:s') <= '09:00:00';
                     })->count(),
                     'not_attended' => now()->daysInMonth - $monthAttendances->count(),
                 ],
                 'week' => [
-                    'attended' => $weekAttendances->count(),
+                    'attended' => $weekAttended,
                     'late' => $weekAttendances->where('status', 'late')->count(),
                     'early' => $weekAttendances->filter(function($att) {
-                        return $att->check_in_time && $att->check_in_time->format('H:i:s') <= '08:30:00';
+                        return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time->format('H:i:s') <= '09:00:00';
                     })->count(),
                     'not_attended' => 7 - $weekAttendances->count(),
                 ],
                 'total' => [
-                    'attended' => $attendances->count(),
+                    'attended' => $totalAttended,
                     'late' => $attendances->where('status', 'late')->count(),
                     'early' => $attendances->filter(function($att) {
-                        return $att->check_in_time && $att->check_in_time->format('H:i:s') <= '08:30:00';
+                        return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time->format('H:i:s') <= '09:00:00';
                     })->count(),
                 ]
             ];
         }
 
-        return view('admin.attendance', compact('attendanceData', 'users'));
+        return view('admin.attendance', compact('attendanceData', 'users', 'summary'));
     }
 
     public function reports(Request $request)
@@ -348,6 +437,90 @@ class AdminApprovalController extends Controller
         $users = User::where('role', '!=', 'admin')->orderBy('name')->get();
         $attendances = Attendance::all();
 
+        // Calculate attendance summaries for different periods
+        $attendanceSummaries = [];
+        
+        foreach ($users as $user) {
+            $userAttendances = $attendances->where('user_id', $user->id);
+            
+            // Current week stats
+            $currentWeekStart = now()->startOfWeek();
+            $currentWeekEnd = now()->endOfWeek();
+            $weekAttendances = $userAttendances->filter(function($att) use ($currentWeekStart, $currentWeekEnd) {
+                return $att->attendance_date >= $currentWeekStart && $att->attendance_date <= $currentWeekEnd;
+            });
+            
+            // Current month stats
+            $currentMonthStart = now()->startOfMonth();
+            $currentMonthEnd = now()->endOfMonth();
+            $monthAttendances = $userAttendances->filter(function($att) use ($currentMonthStart, $currentMonthEnd) {
+                return $att->attendance_date >= $currentMonthStart && $att->attendance_date <= $currentMonthEnd;
+            });
+            
+            // Count attended (present + late)
+            $weekAttended = $weekAttendances->filter(function($att) {
+                return in_array($att->status, ['present', 'late']);
+            })->count();
+            
+            $monthAttended = $monthAttendances->filter(function($att) {
+                return in_array($att->status, ['present', 'late']);
+            })->count();
+            
+            $totalAttended = $userAttendances->filter(function($att) {
+                return in_array($att->status, ['present', 'late']);
+            })->count();
+            
+            $attendanceSummaries[$user->id] = [
+                'user' => $user,
+                'week' => [
+                    'attended' => $weekAttended,
+                    'late' => $weekAttendances->where('status', 'late')->count(),
+                    'early' => $weekAttendances->filter(function($att) {
+                        return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time->format('H:i:s') <= '09:00:00';
+                    })->count(),
+                    'not_attended' => 7 - $weekAttendances->count(),
+                ],
+                'month' => [
+                    'attended' => $monthAttended,
+                    'late' => $monthAttendances->where('status', 'late')->count(),
+                    'early' => $monthAttendances->filter(function($att) {
+                        return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time->format('H:i:s') <= '09:00:00';
+                    })->count(),
+                    'not_attended' => now()->daysInMonth - $monthAttendances->count(),
+                ],
+                'total' => [
+                    'attended' => $totalAttended,
+                    'late' => $userAttendances->where('status', 'late')->count(),
+                    'early' => $userAttendances->filter(function($att) {
+                        return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time->format('H:i:s') <= '09:00:00';
+                    })->count(),
+                ]
+            ];
+        }
+        
+        // Calculate overall summary
+        $summary = [
+            'week' => ['attended' => 0, 'late' => 0, 'early' => 0, 'not_attended' => 0],
+            'month' => ['attended' => 0, 'late' => 0, 'early' => 0, 'not_attended' => 0],
+            'total' => ['attended' => 0, 'late' => 0, 'early' => 0]
+        ];
+        
+        foreach ($attendanceSummaries as $data) {
+            $summary['week']['attended'] += $data['week']['attended'];
+            $summary['week']['late'] += $data['week']['late'];
+            $summary['week']['early'] += $data['week']['early'];
+            $summary['week']['not_attended'] += $data['week']['not_attended'];
+
+            $summary['month']['attended'] += $data['month']['attended'];
+            $summary['month']['late'] += $data['month']['late'];
+            $summary['month']['early'] += $data['month']['early'];
+            $summary['month']['not_attended'] += $data['month']['not_attended'];
+
+            $summary['total']['attended'] += $data['total']['attended'];
+            $summary['total']['late'] += $data['total']['late'];
+            $summary['total']['early'] += $data['total']['early'];
+        }
+
         // Analytics data
         $totalAttendance = $attendances->count();
         $totalPresent = $attendances->where('status', 'present')->count();
@@ -378,7 +551,7 @@ class AdminApprovalController extends Controller
             'monthly_trend' => $this->getMonthlyTrend($attendances),
         ];
 
-        $pdf = PDF::loadView('admin.reports-pdf', compact('analytics', 'attendances'));
+        $pdf = PDF::loadView('admin.reports-pdf', compact('analytics', 'attendances', 'attendanceSummaries', 'summary'));
         
         return $pdf->download('lish-ai-attendance-report-' . now()->format('Y-m-d') . '.pdf');
     }

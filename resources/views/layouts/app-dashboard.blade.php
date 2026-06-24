@@ -69,6 +69,27 @@
             font-size: 20px;
         }
 
+        .notification-badge {
+            background: #ef4444;
+            color: #fff;
+            border-radius: 9999px;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: 700;
+            min-width: 20px;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
         .nav-link {
             color: rgba(255,255,255,.7);
             text-decoration: none;
@@ -196,6 +217,7 @@
                             ['section' => 'Management'],
                             ['icon' => 'ti-users', 'label' => 'Users', 'route' => 'admin.users'],
                             ['icon' => 'ti-calendar', 'label' => 'Attendance', 'route' => 'admin.attendance'],
+                            ['icon' => 'ti-calendar-off', 'label' => 'Leave', 'route' => 'admin.leave.index'],
                             ['icon' => 'ti-chart-bar', 'label' => 'Reports', 'route' => 'admin.reports'],
                             ['section' => 'Settings'],
                             ['icon' => 'ti-user', 'label' => 'Profile', 'route' => 'profile.edit'],
@@ -207,6 +229,7 @@
                             ['section' => 'Attendance'],
                             ['icon' => 'ti-calendar', 'label' => 'My Attendance', 'route' => 'attendance.my'],
                             ['icon' => 'ti-history', 'label' => 'History', 'route' => 'attendance.history'],
+                            ['icon' => 'ti-calendar-off', 'label' => 'Leave', 'route' => 'leave.index'],
                             ['section' => 'Settings'],
                             ['icon' => 'ti-user', 'label' => 'My Profile', 'route' => 'profile.edit'],
                         ];
@@ -217,6 +240,7 @@
                             ['section' => 'Attendance'],
                             ['icon' => 'ti-calendar', 'label' => 'My Attendance', 'route' => 'attendance.my'],
                             ['icon' => 'ti-history', 'label' => 'History', 'route' => 'attendance.history'],
+                            ['icon' => 'ti-calendar-off', 'label' => 'Leave', 'route' => 'leave.index'],
                             ['section' => 'Settings'],
                             ['icon' => 'ti-user', 'label' => 'My Profile', 'route' => 'profile.edit'],
                         ];
@@ -236,6 +260,12 @@
                             <a href="{{ route($item['route']) }}" class="sidebar-link {{ request()->routeIs($item['route']) ? 'active' : '' }}">
                                 <i class="ti {{ $item['icon'] }}"></i>
                                 <span>{{ $item['label'] }}</span>
+                                @if(isset($item['route']) && $item['route'] === 'admin.approval' && isset($pendingCount) && $pendingCount > 0)
+                                    <span class="notification-badge">{{ $pendingCount }}</span>
+                                @endif
+                                @if(isset($item['route']) && $item['route'] === 'admin.leave.index' && isset($pendingLeaveCount) && $pendingLeaveCount > 0)
+                                    <span class="notification-badge">{{ $pendingLeaveCount }}</span>
+                                @endif
                             </a>
                         @endif
                     @endif
