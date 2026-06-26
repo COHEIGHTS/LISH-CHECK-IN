@@ -69,27 +69,6 @@
             font-size: 20px;
         }
 
-        .notification-badge {
-            background: #ef4444;
-            color: #fff;
-            border-radius: 9999px;
-            padding: 2px 8px;
-            font-size: 11px;
-            font-weight: 700;
-            min-width: 20px;
-            text-align: center;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.7;
-            }
-        }
-
         .nav-link {
             color: rgba(255,255,255,.7);
             text-decoration: none;
@@ -150,9 +129,6 @@
                 <a href="{{ route('admin.approval') }}" class="sidebar-link {{ request()->is('admin/approval') ? 'active' : '' }}">
                     <i class="ti ti-user-check"></i>
                     <span>User Approvals</span>
-                    @if(isset($pendingCount) && $pendingCount > 0)
-                        <span class="notification-badge">{{ $pendingCount }}</span>
-                    @endif
                 </a>
 
                 <a href="{{ route('qr.generate') }}" class="sidebar-link {{ request()->is('qr/generate') ? 'active' : '' }}">
@@ -162,25 +138,17 @@
 
                 <div class="text-xs font-semibold text-white/40 uppercase tracking-wider mb-3 px-3 mt-6">Management</div>
 
-                <a href="{{ route('admin.users') }}" class="sidebar-link {{ request()->is('admin/users') ? 'active' : '' }}">
+                <a href="#" class="sidebar-link">
                     <i class="ti ti-users"></i>
                     <span>Users</span>
                 </a>
 
-                <a href="{{ route('admin.attendance') }}" class="sidebar-link {{ request()->is('admin/attendance') ? 'active' : '' }}">
+                <a href="#" class="sidebar-link">
                     <i class="ti ti-calendar"></i>
                     <span>Attendance</span>
                 </a>
 
-                <a href="{{ route('admin.leave.index') }}" class="sidebar-link {{ request()->is('admin/leave*') ? 'active' : '' }}">
-                    <i class="ti ti-calendar-off"></i>
-                    <span>Leave</span>
-                    @if(isset($pendingLeaveCount) && $pendingLeaveCount > 0)
-                        <span class="notification-badge">{{ $pendingLeaveCount }}</span>
-                    @endif
-                </a>
-
-                <a href="{{ route('admin.reports') }}" class="sidebar-link {{ request()->is('admin/reports') ? 'active' : '' }}">
+                <a href="#" class="sidebar-link">
                     <i class="ti ti-chart-bar"></i>
                     <span>Reports</span>
                 </a>
@@ -196,13 +164,9 @@
             {{-- User Info --}}
             <div class="p-4 border-t border-white/10">
                 <div class="flex items-center gap-3 mb-3">
-                    @if(auth()->user()->profile_photo_path)
-                        <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="{{ auth()->user()->name }}" class="w-10 h-10 rounded-full object-cover">
-                    @else
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
-                            <span class="text-white font-semibold">{{ auth()->user()->name[0] }}</span>
-                        </div>
-                    @endif
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
+                        <span class="text-white font-semibold">{{ auth()->user()->name[0] }}</span>
+                    </div>
                     <div class="flex-1 min-w-0">
                         <div class="font-semibold text-sm truncate">{{ auth()->user()->name }}</div>
                         <div class="text-xs text-white/50 truncate">{{ auth()->user()->email }}</div>

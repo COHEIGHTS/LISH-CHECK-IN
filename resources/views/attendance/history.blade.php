@@ -153,6 +153,11 @@
         color: #eab308;
     }
 
+    .status-leave {
+        background: rgba(139, 92, 246, .2);
+        color: #a78bfa;
+    }
+
     .section-title {
         font-size: 18px;
         font-weight: 700;
@@ -317,8 +322,16 @@
         <div class="stat-value">{{ $lateCount }}</div>
     </div>
     <div class="stat-card">
+        <div class="stat-label">Total Leave Days</div>
+        <div class="stat-value">{{ $totalLeaveDays }}</div>
+    </div>
+    <div class="stat-card">
         <div class="stat-label">This Month</div>
-        <div class="stat-value">{{ $monthAttendances->count() }}</div>
+        <div class="stat-value">{{ $monthAttendances->count() + $monthLeaveDays }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">This Month Leave</div>
+        <div class="stat-value">{{ $monthLeaveDays }}</div>
     </div>
 </div>
 
@@ -362,4 +375,36 @@
         </div>
     @endif
 </div>
+
+@if($leaves->count() > 0)
+<div class="history-table" style="margin-top: 32px;">
+    <div class="section-title">Leave Records</div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Duration</th>
+                <th>Type</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($leaves as $leave)
+                <tr>
+                    <td>{{ $leave->start_date->format('M d, Y') }}</td>
+                    <td>{{ $leave->end_date->format('M d, Y') }}</td>
+                    <td>{{ $leave->duration }} day(s)</td>
+                    <td>{{ ucfirst($leave->type) }}</td>
+                    <td>
+                        <span class="status-badge status-{{ $leave->status }}">
+                            {{ ucfirst($leave->status) }}
+                        </span>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
+@endif
 @endsection

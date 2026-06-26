@@ -214,10 +214,10 @@ class AdminApprovalController extends Controller
             });
 
             // Current week stats (Monday to Sunday)
-            $currentWeekStart = now()->startOfWeek();
-            $currentWeekEnd = now()->endOfWeek();
+            $currentWeekStart = now()->startOfWeek()->startOfDay();
+            $currentWeekEnd = now()->endOfWeek()->endOfDay();
             $weekAttendances = $attendances->filter(function($att) use ($currentWeekStart, $currentWeekEnd) {
-                return $att->attendance_date >= $currentWeekStart && $att->attendance_date <= $currentWeekEnd;
+                return $att->attendance_date->format('Y-m-d') >= $currentWeekStart->format('Y-m-d') && $att->attendance_date->format('Y-m-d') <= $currentWeekEnd->format('Y-m-d');
             });
 
             // Count attended (present + late)
@@ -267,10 +267,10 @@ class AdminApprovalController extends Controller
             });
 
             // Current week stats (Monday to Sunday)
-            $currentWeekStart = now()->startOfWeek();
-            $currentWeekEnd = now()->endOfWeek();
+            $currentWeekStart = now()->startOfWeek()->startOfDay();
+            $currentWeekEnd = now()->endOfWeek()->endOfDay();
             $weekAttendances = $attendances->filter(function($att) use ($currentWeekStart, $currentWeekEnd) {
-                return $att->attendance_date >= $currentWeekStart && $att->attendance_date <= $currentWeekEnd;
+                return $att->attendance_date->format('Y-m-d') >= $currentWeekStart->format('Y-m-d') && $att->attendance_date->format('Y-m-d') <= $currentWeekEnd->format('Y-m-d');
             });
 
             // Count attended (present + late)

@@ -205,23 +205,49 @@ class DashboardController extends Controller
 
         $attendances = $query->paginate(6)->withQueryString();
 
+        // Get approved leave records for the user
+        $leaves = \App\Models\Leave::where('user_id', $user->id)
+            ->where('status', 'approved')
+            ->orderBy('start_date', 'desc')
+            ->get();
+
         // Calculate statistics
         $totalAttendances = Attendance::where('user_id', $user->id)->count();
         $presentCount = Attendance::where('user_id', $user->id)->where('status', 'present')->count();
         $lateCount = Attendance::where('user_id', $user->id)->where('status', 'late')->count();
+        
+        // Calculate total leave days
+        $totalLeaveDays = $leaves->sum(function($leave) {
+            return (int)$leave->start_date->diffInDays($leave->end_date) + 1;
+        });
         
         // Current month stats
         $currentMonth = now()->format('Y-m');
         $monthAttendances = Attendance::where('user_id', $user->id)
             ->where('attendance_date', 'like', $currentMonth . '%')
             ->get();
+            
+        // Calculate leave days for current month
+        $currentMonthStart = now()->startOfMonth();
+        $currentMonthEnd = now()->endOfMonth();
+        $monthLeaveDays = 0;
+        foreach ($leaves as $leave) {
+            $leaveStart = max($leave->start_date, $currentMonthStart);
+            $leaveEnd = min($leave->end_date, $currentMonthEnd);
+            if ($leaveStart <= $leaveEnd) {
+                $monthLeaveDays += (int)$leaveStart->diffInDays($leaveEnd) + 1;
+            }
+        }
 
         return view('attendance.history', compact(
             'attendances',
+            'leaves',
             'totalAttendances',
             'presentCount',
             'lateCount',
-            'monthAttendances'
+            'totalLeaveDays',
+            'monthAttendances',
+            'monthLeaveDays'
         ));
     }
 }
