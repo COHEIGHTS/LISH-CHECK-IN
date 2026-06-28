@@ -1,7 +1,14 @@
 @extends('layouts.app-dashboard')
 
 @section('content')
-@php $title = 'Mark Attendance'; @endphp
+@php
+    $title = 'Mark Attendance';
+    $user = auth()->user();
+    $today = now()->format('Y-m-d');
+    $todayAttendance = \App\Models\Attendance::where('user_id', $user->id)
+        ->where('attendance_date', $today)
+        ->first();
+@endphp
 
 <style>
     .scan-wrapper {
@@ -86,6 +93,46 @@
 
     .btn-submit:hover { opacity: .9; }
 
+    .btn-checkout {
+        width: 100%;
+        background: linear-gradient(135deg, #f59e0b, #ef4444);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 14px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: opacity .2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 16px;
+    }
+
+    .btn-checkout:hover { opacity: .9; }
+
+    .status-display {
+        background: rgba(124,58,237,.1);
+        border: 1px solid rgba(124,58,237,.3);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 24px;
+        text-align: left;
+    }
+
+    .status-display p {
+        font-size: 13px;
+        color: #a78bfa;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .status-display strong {
+        color: #c4b5fd;
+    }
+
     .alert {
         padding: 12px 16px;
         border-radius: 10px;
@@ -127,7 +174,7 @@
     <div class="scan-card">
         <div class="header">
             <h2>Mark Attendance</h2>
-            <p>Enter the QR token from your admin to check in</p>
+            <p>@if($todayAttendance && !$todayAttendance->check_out_time) You're checked in. Time to check out! @else Enter the QR token from your admin to check in @endif</p>
         </div>
 
         @if(session('success'))
@@ -142,33 +189,59 @@
             </div>
         @endif
 
-        <div class="info-box">
-            <p>
-                <strong>How to mark attendance:</strong><br>
-                1. Ask your admin for today's QR token<br>
-                2. Enter the token below<br>
-                3. Click "Mark Attendance"
-            </p>
-        </div>
-
-        <form action="{{ route('qr.verify') }}" method="POST">
-            @csrf
-            <div class="manual-input">
-                <label for="qr_token">QR Token</label>
-                <input 
-                    type="text" 
-                    id="qr_token" 
-                    name="qr_token" 
-                    placeholder="Enter today's QR token"
-                    required
-                    autocomplete="off"
-                >
+        @if($todayAttendance)
+            <div class="status-display">
+                <p>
+                    <strong>Today's Status:</strong><br>
+                    Check-in: {{ $todayAttendance->check_in_time ? substr($todayAttendance->check_in_time, 0, 5) : '--:--' }}<br>
+                    @if($todayAttendance->check_out_time)
+                        Check-out: {{ substr($todayAttendance->check_out_time, 0, 5) }}<br>
+                        Hours Worked: {{ $todayAttendance->hours_worked }} hours
+                    @else
+                        Check-out: Not yet<br>
+                        <em>Click below to check out</em>
+                    @endif
+                </p>
             </div>
-            <button type="submit" class="btn-submit">
-                <i class="ti ti-check"></i>
-                Mark Attendance
-            </button>
-        </form>
+
+            @if(!$todayAttendance->check_out_time)
+                <form action="{{ route('qr.check-out') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn-checkout">
+                        <i class="ti ti-logout"></i>
+                        Check Out
+                    </button>
+                </form>
+            @endif
+        @else
+            <div class="info-box">
+                <p>
+                    <strong>How to mark attendance:</strong><br>
+                    1. Ask your admin for today's QR token<br>
+                    2. Enter the token below<br>
+                    3. Click "Mark Attendance"
+                </p>
+            </div>
+
+            <form action="{{ route('qr.verify') }}" method="POST">
+                @csrf
+                <div class="manual-input">
+                    <label for="qr_token">QR Token</label>
+                    <input
+                        type="text"
+                        id="qr_token"
+                        name="qr_token"
+                        placeholder="Enter today's QR token"
+                        required
+                        autocomplete="off"
+                    >
+                </div>
+                <button type="submit" class="btn-submit">
+                    <i class="ti ti-check"></i>
+                    Mark Attendance
+                </button>
+            </form>
+        @endif
     </div>
 </div>
 @endsection

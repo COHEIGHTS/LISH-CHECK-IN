@@ -344,6 +344,7 @@
                     <th>Date</th>
                     <th>Check-in Time</th>
                     <th>Check-out Time</th>
+                    <th>Hours Worked</th>
                     <th>Status</th>
                 </tr>
             </thead>
@@ -351,8 +352,9 @@
                 @foreach($attendances as $attendance)
                     <tr>
                         <td>{{ $attendance->attendance_date->format('M d, Y') }}</td>
-                        <td>{{ $attendance->check_in_time ? $attendance->check_in_time->format('H:i') : '--:--' }}</td>
-                        <td>{{ $attendance->check_out_time ? $attendance->check_out_time->format('H:i') : '--:--' }}</td>
+                        <td>{{ $attendance->check_in_time ? substr($attendance->check_in_time, 0, 5) : '--:--' }}</td>
+                        <td>{{ $attendance->check_out_time ? substr($attendance->check_out_time, 0, 5) : '--:--' }}</td>
+                        <td>{{ $attendance->hours_worked > 0 ? $attendance->hours_worked . 'h' : '--' }}</td>
                         <td>
                             <span class="status-badge status-{{ $attendance->status }}">
                                 {{ ucfirst($attendance->status) }}

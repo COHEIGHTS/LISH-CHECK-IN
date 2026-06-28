@@ -41,6 +41,14 @@ class DashboardController extends Controller
             return $att->attendance_date->between($currentWeekStart, $currentWeekEnd);
         });
 
+        // Calculate hours worked
+        $weekHoursWorked = $weekAttendances->sum(function($att) {
+            return $att->hours_worked;
+        });
+        $monthHoursWorked = $monthAttendances->sum(function($att) {
+            return $att->hours_worked;
+        });
+
         // Detailed summaries
         $summaries = [
             'daily' => [
@@ -52,12 +60,14 @@ class DashboardController extends Controller
                 'present' => $weekAttendances->where('status', 'present')->count(),
                 'late' => $weekAttendances->where('status', 'late')->count(),
                 'total' => $weekAttendances->count(),
+                'hours_worked' => $weekHoursWorked,
             ],
             'monthly' => [
                 'present' => $monthAttendances->where('status', 'present')->count(),
                 'late' => $monthAttendances->where('status', 'late')->count(),
                 'total' => $monthAttendances->count(),
                 'rate' => $attendanceRate,
+                'hours_worked' => $monthHoursWorked,
             ],
         ];
 
@@ -103,6 +113,14 @@ class DashboardController extends Controller
             return $att->attendance_date->between($currentWeekStart, $currentWeekEnd);
         });
 
+        // Calculate hours worked
+        $weekHoursWorked = $weekAttendances->sum(function($att) {
+            return $att->hours_worked;
+        });
+        $monthHoursWorked = $monthAttendances->sum(function($att) {
+            return $att->hours_worked;
+        });
+
         // Detailed summaries
         $summaries = [
             'daily' => [
@@ -114,12 +132,14 @@ class DashboardController extends Controller
                 'present' => $weekAttendances->where('status', 'present')->count(),
                 'late' => $weekAttendances->where('status', 'late')->count(),
                 'total' => $weekAttendances->count(),
+                'hours_worked' => $weekHoursWorked,
             ],
             'monthly' => [
                 'present' => $monthAttendances->where('status', 'present')->count(),
                 'late' => $monthAttendances->where('status', 'late')->count(),
                 'total' => $monthAttendances->count(),
                 'rate' => $attendanceRate,
+                'hours_worked' => $monthHoursWorked,
             ],
         ];
 
@@ -166,12 +186,18 @@ class DashboardController extends Controller
             'present' => $weekAttendances->where('status', 'present')->count(),
             'late' => $weekAttendances->where('status', 'late')->count(),
             'total' => $weekAttendances->count(),
+            'hours_worked' => $weekAttendances->sum(function($att) {
+                return $att->hours_worked;
+            }),
         ];
 
         $monthStats = [
             'present' => $monthAttendances->where('status', 'present')->count(),
             'late' => $monthAttendances->where('status', 'late')->count(),
             'total' => $monthAttendances->count(),
+            'hours_worked' => $monthAttendances->sum(function($att) {
+                return $att->hours_worked;
+            }),
         ];
 
         return view('attendance.my-attendance', compact(

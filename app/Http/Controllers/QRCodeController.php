@@ -94,9 +94,40 @@ class QRCodeController extends Controller
                 'qr_token' => $request->qr_token,
             ]);
 
-            return back()->with('success', 'Attendance marked successfully! Check-in time: ' . $checkInTime->format('H:i'));
+            return back()->with('success', 'Attendance marked successfully! Check-in time: ' . substr($checkInTime->format('H:i:s'), 0, 5));
         } catch (\Exception $e) {
             return back()->with('error', 'Error marking attendance. Please try again.');
+        }
+    }
+
+    public function checkOut(Request $request)
+    {
+        $user = Auth::user();
+        $today = now()->format('Y-m-d');
+
+        // Check if user has attendance for today
+        $attendance = Attendance::where('user_id', $user->id)
+            ->where('attendance_date', $today)
+            ->first();
+
+        if (!$attendance) {
+            return back()->with('error', 'No check-in record found for today. Please check in first.');
+        }
+
+        if ($attendance->check_out_time) {
+            return back()->with('error', 'You have already checked out today.');
+        }
+
+        try {
+            $checkOutTime = now();
+            $attendance->update([
+                'check_out_time' => $checkOutTime->format('H:i:s'),
+            ]);
+
+            $hoursWorked = $attendance->hours_worked;
+            return back()->with('success', 'Check-out successful! Time: ' . substr($checkOutTime->format('H:i:s'), 0, 5) . ' | Hours worked: ' . $hoursWorked);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error checking out. Please try again.');
         }
     }
 }

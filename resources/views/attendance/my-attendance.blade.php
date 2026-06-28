@@ -382,9 +382,9 @@
                 {{ ucfirst($todayAttendance->status) }}
             </span>
             <div style="color: rgba(255,255,255,.7);">
-                Check-in: {{ $todayAttendance->check_in_time ? $todayAttendance->check_in_time->format('H:i') : '--:--' }}
+                Check-in: {{ $todayAttendance->check_in_time ? substr($todayAttendance->check_in_time, 0, 5) : '--:--' }}
                 @if($todayAttendance->check_out_time)
-                    | Check-out: {{ $todayAttendance->check_out_time->format('H:i') }}
+                    | Check-out: {{ substr($todayAttendance->check_out_time, 0, 5) }}
                 @endif
             </div>
         </div>
@@ -437,6 +437,16 @@
                     <div class="progress-fill late" style="width: {{ $lateWidth }}%;"></div>
                 </div>
             </div>
+
+            <div class="progress-container">
+                <div class="progress-label">
+                    <span>Hours Worked</span>
+                    <span>{{ number_format($weekStats['hours_worked'], 1) }}h</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 100%; background: linear-gradient(90deg, #a78bfa, #c4b5fd);"></div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -477,6 +487,16 @@
                     <div class="progress-fill late" style="width: {{ $monthLateWidth }}%;"></div>
                 </div>
             </div>
+
+            <div class="progress-container">
+                <div class="progress-label">
+                    <span>Hours Worked</span>
+                    <span>{{ number_format($monthStats['hours_worked'], 1) }}h</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 100%; background: linear-gradient(90deg, #a78bfa, #c4b5fd);"></div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -490,6 +510,7 @@
                     <th>Date</th>
                     <th>Check-in Time</th>
                     <th>Check-out Time</th>
+                    <th>Hours Worked</th>
                     <th>Status</th>
                 </tr>
             </thead>
@@ -497,8 +518,9 @@
                 @foreach($recentAttendances as $attendance)
                     <tr>
                         <td>{{ $attendance->attendance_date->format('M d, Y') }}</td>
-                        <td>{{ $attendance->check_in_time ? $attendance->check_in_time->format('H:i') : '--:--' }}</td>
-                        <td>{{ $attendance->check_out_time ? $attendance->check_out_time->format('H:i') : '--:--' }}</td>
+                        <td>{{ $attendance->check_in_time ? substr($attendance->check_in_time, 0, 5) : '--:--' }}</td>
+                        <td>{{ $attendance->check_out_time ? substr($attendance->check_out_time, 0, 5) : '--:--' }}</td>
+                        <td>{{ $attendance->hours_worked > 0 ? $attendance->hours_worked . 'h' : '--' }}</td>
                         <td>
                             <span class="status-badge status-{{ $attendance->status }}">
                                 {{ ucfirst($attendance->status) }}

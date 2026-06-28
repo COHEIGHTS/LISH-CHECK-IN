@@ -181,6 +181,11 @@
         color: #f87171;
     }
 
+    .stat-hours {
+        background: rgba(139,92,246,.15);
+        color: #a78bfa;
+    }
+
     .role-badge {
         display: inline-block;
         padding: 4px 12px;
@@ -387,6 +392,10 @@
             <div class="summary-label">Total Early</div>
         </div>
         <div class="summary-card">
+            <div class="summary-value" id="total-hours">{{ number_format($summary['week']['hours_worked'], 1) }}h</div>
+            <div class="summary-label">Total Hours</div>
+        </div>
+        <div class="summary-card">
             <div class="summary-value" id="total-not-attended">{{ $summary['week']['not_attended'] }}</div>
             <div class="summary-label">Total Not Attended</div>
         </div>
@@ -401,6 +410,7 @@
                     <th>Attended</th>
                     <th>Late</th>
                     <th>Early</th>
+                    <th>Hours Worked</th>
                     <th>Not Attended</th>
                 </tr>
             </thead>
@@ -416,6 +426,7 @@
                         <td><span class="stat-badge stat-attended">{{ $data['week']['attended'] }}</span></td>
                         <td><span class="stat-badge stat-late">{{ $data['week']['late'] }}</span></td>
                         <td><span class="stat-badge stat-early">{{ $data['week']['early'] }}</span></td>
+                        <td><span class="stat-badge stat-hours">{{ number_format($data['week']['hours_worked'], 1) }}h</span></td>
                         <td><span class="stat-badge stat-not-attended">{{ $data['week']['not_attended'] }}</span></td>
                     </tr>
                     <tr data-period="month" style="display: none;">
@@ -428,6 +439,7 @@
                         <td><span class="stat-badge stat-attended">{{ $data['month']['attended'] }}</span></td>
                         <td><span class="stat-badge stat-late">{{ $data['month']['late'] }}</span></td>
                         <td><span class="stat-badge stat-early">{{ $data['month']['early'] }}</span></td>
+                        <td><span class="stat-badge stat-hours">{{ number_format($data['month']['hours_worked'], 1) }}h</span></td>
                         <td><span class="stat-badge stat-not-attended">{{ $data['month']['not_attended'] }}</span></td>
                     </tr>
                     <tr data-period="total" style="display: none;">
@@ -440,6 +452,7 @@
                         <td><span class="stat-badge stat-attended">{{ $data['total']['attended'] }}</span></td>
                         <td><span class="stat-badge stat-late">{{ $data['total']['late'] }}</span></td>
                         <td><span class="stat-badge stat-early">{{ $data['total']['early'] }}</span></td>
+                        <td><span class="stat-badge stat-hours">{{ number_format($data['total']['hours_worked'], 1) }}h</span></td>
                         <td><span class="stat-badge stat-not-attended">-</span></td>
                     </tr>
                 @endforeach
@@ -481,12 +494,17 @@
         document.getElementById('total-attended').textContent = summaryData[period]['attended'];
         document.getElementById('total-late').textContent = summaryData[period]['late'];
         document.getElementById('total-early').textContent = summaryData[period]['early'];
+        document.getElementById('total-hours').textContent = number_format(summaryData[period]['hours_worked'], 1) + 'h';
         
         if (period === 'total') {
             document.getElementById('total-not-attended').textContent = '-';
         } else {
             document.getElementById('total-not-attended').textContent = summaryData[period]['not_attended'];
         }
+    }
+
+    function number_format(num, decimals) {
+        return num.toFixed(decimals);
     }
 </script>
 @endsection

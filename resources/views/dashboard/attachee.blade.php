@@ -168,9 +168,13 @@
                 <span style="color: rgba(255,255,255,.7); font-size: 14px;">Late</span>
                 <span style="color: #eab308; font-weight: 700; font-size: 18px;">{{ $summaries['weekly']['late'] }}</span>
             </div>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                 <span style="color: rgba(255,255,255,.7); font-size: 14px;">Total</span>
                 <span style="color: #fff; font-weight: 700; font-size: 18px;">{{ $summaries['weekly']['total'] }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: rgba(255,255,255,.7); font-size: 14px;">Hours Worked</span>
+                <span style="color: #a78bfa; font-weight: 700; font-size: 18px;">{{ number_format($summaries['weekly']['hours_worked'], 1) }}h</span>
             </div>
         </div>
         <div style="background: rgba(255,255,255,.03); border-radius: 12px; padding: 16px; border: 1px solid rgba(255,255,255,.08);">
@@ -183,9 +187,13 @@
                 <span style="color: rgba(255,255,255,.7); font-size: 14px;">Late</span>
                 <span style="color: #eab308; font-weight: 700; font-size: 18px;">{{ $summaries['monthly']['late'] }}</span>
             </div>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                 <span style="color: rgba(255,255,255,.7); font-size: 14px;">Total</span>
                 <span style="color: #fff; font-weight: 700; font-size: 18px;">{{ $summaries['monthly']['total'] }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: rgba(255,255,255,.7); font-size: 14px;">Hours Worked</span>
+                <span style="color: #a78bfa; font-weight: 700; font-size: 18px;">{{ number_format($summaries['monthly']['hours_worked'], 1) }}h</span>
             </div>
         </div>
     </div>

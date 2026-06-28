@@ -19,12 +19,26 @@ class Attendance extends Model
 
     protected $casts = [
         'attendance_date' => 'date',
-        'check_in_time' => 'datetime:H:i:s',
-        'check_out_time' => 'datetime:H:i:s',
     ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function getHoursWorkedAttribute(): float
+    {
+        if (!$this->check_in_time || !$this->check_out_time) {
+            return 0;
+        }
+
+        // Parse the time strings as Carbon objects
+        $checkIn = \Carbon\Carbon::parse($this->check_in_time);
+        $checkOut = \Carbon\Carbon::parse($this->check_out_time);
+
+        // Calculate difference in minutes and convert to hours
+        $minutes = $checkOut->diffInMinutes($checkIn);
+        
+        return round($minutes / 60, 2);
     }
 }

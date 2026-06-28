@@ -93,6 +93,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/qr/verify', [QRCodeController::class, 'verify'])
         ->middleware(['auth'])
         ->name('qr.verify');
+    Route::post('/qr/check-out', [QRCodeController::class, 'checkOut'])
+        ->middleware(['auth'])
+        ->name('qr.check-out');
 
     // Leave Management Routes (User)
     Route::get('/leave', [LeaveController::class, 'index'])

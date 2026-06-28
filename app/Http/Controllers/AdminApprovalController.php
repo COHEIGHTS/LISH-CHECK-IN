@@ -197,9 +197,9 @@ class AdminApprovalController extends Controller
 
         // Initialize summary counters
         $summary = [
-            'week' => ['attended' => 0, 'late' => 0, 'early' => 0, 'not_attended' => 0],
-            'month' => ['attended' => 0, 'late' => 0, 'early' => 0, 'not_attended' => 0],
-            'total' => ['attended' => 0, 'late' => 0, 'early' => 0]
+            'week' => ['attended' => 0, 'late' => 0, 'early' => 0, 'not_attended' => 0, 'hours_worked' => 0],
+            'month' => ['attended' => 0, 'late' => 0, 'early' => 0, 'not_attended' => 0, 'hours_worked' => 0],
+            'total' => ['attended' => 0, 'late' => 0, 'early' => 0, 'hours_worked' => 0]
         ];
 
         // Calculate summary from all users
@@ -237,22 +237,31 @@ class AdminApprovalController extends Controller
             $summary['week']['attended'] += $weekAttended;
             $summary['week']['late'] += $weekAttendances->where('status', 'late')->count();
             $summary['week']['early'] += $weekAttendances->filter(function($att) {
-                return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time->format('H:i:s') <= '09:00:00';
+                return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time <= '09:00:00';
             })->count();
             $summary['week']['not_attended'] += (7 - $weekAttendances->count());
+            $summary['week']['hours_worked'] += $weekAttendances->sum(function($att) {
+                return $att->hours_worked;
+            });
 
             $summary['month']['attended'] += $monthAttended;
             $summary['month']['late'] += $monthAttendances->where('status', 'late')->count();
             $summary['month']['early'] += $monthAttendances->filter(function($att) {
-                return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time->format('H:i:s') <= '09:00:00';
+                return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time <= '09:00:00';
             })->count();
             $summary['month']['not_attended'] += (now()->daysInMonth - $monthAttendances->count());
+            $summary['month']['hours_worked'] += $monthAttendances->sum(function($att) {
+                return $att->hours_worked;
+            });
 
             $summary['total']['attended'] += $totalAttended;
             $summary['total']['late'] += $attendances->where('status', 'late')->count();
             $summary['total']['early'] += $attendances->filter(function($att) {
-                return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time->format('H:i:s') <= '09:00:00';
+                return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time <= '09:00:00';
             })->count();
+            $summary['total']['hours_worked'] += $attendances->sum(function($att) {
+                return $att->hours_worked;
+            });
         }
 
         // Now calculate individual user data for paginated users
@@ -292,24 +301,33 @@ class AdminApprovalController extends Controller
                     'attended' => $monthAttended,
                     'late' => $monthAttendances->where('status', 'late')->count(),
                     'early' => $monthAttendances->filter(function($att) {
-                        return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time->format('H:i:s') <= '09:00:00';
+                        return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time <= '09:00:00';
                     })->count(),
                     'not_attended' => now()->daysInMonth - $monthAttendances->count(),
+                    'hours_worked' => $monthAttendances->sum(function($att) {
+                        return $att->hours_worked;
+                    }),
                 ],
                 'week' => [
                     'attended' => $weekAttended,
                     'late' => $weekAttendances->where('status', 'late')->count(),
                     'early' => $weekAttendances->filter(function($att) {
-                        return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time->format('H:i:s') <= '09:00:00';
+                        return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time <= '09:00:00';
                     })->count(),
                     'not_attended' => 7 - $weekAttendances->count(),
+                    'hours_worked' => $weekAttendances->sum(function($att) {
+                        return $att->hours_worked;
+                    }),
                 ],
                 'total' => [
                     'attended' => $totalAttended,
                     'late' => $attendances->where('status', 'late')->count(),
                     'early' => $attendances->filter(function($att) {
-                        return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time->format('H:i:s') <= '09:00:00';
+                        return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time <= '09:00:00';
                     })->count(),
+                    'hours_worked' => $attendances->sum(function($att) {
+                        return $att->hours_worked;
+                    }),
                 ]
             ];
         }
@@ -476,7 +494,7 @@ class AdminApprovalController extends Controller
                     'attended' => $weekAttended,
                     'late' => $weekAttendances->where('status', 'late')->count(),
                     'early' => $weekAttendances->filter(function($att) {
-                        return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time->format('H:i:s') <= '09:00:00';
+                        return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time <= '09:00:00';
                     })->count(),
                     'not_attended' => 7 - $weekAttendances->count(),
                 ],
@@ -484,7 +502,7 @@ class AdminApprovalController extends Controller
                     'attended' => $monthAttended,
                     'late' => $monthAttendances->where('status', 'late')->count(),
                     'early' => $monthAttendances->filter(function($att) {
-                        return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time->format('H:i:s') <= '09:00:00';
+                        return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time <= '09:00:00';
                     })->count(),
                     'not_attended' => now()->daysInMonth - $monthAttendances->count(),
                 ],
@@ -492,7 +510,7 @@ class AdminApprovalController extends Controller
                     'attended' => $totalAttended,
                     'late' => $userAttendances->where('status', 'late')->count(),
                     'early' => $userAttendances->filter(function($att) {
-                        return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time->format('H:i:s') <= '09:00:00';
+                        return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time <= '09:00:00';
                     })->count(),
                 ]
             ];
