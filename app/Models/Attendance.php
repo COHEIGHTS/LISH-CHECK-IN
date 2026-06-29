@@ -28,16 +28,25 @@ class Attendance extends Model
 
     public function getHoursWorkedAttribute(): float
     {
-        if (!$this->check_in_time || !$this->check_out_time) {
+        if (!$this->check_in_time) {
             return 0;
         }
 
-        // Parse the time strings as Carbon objects
-        $checkIn = \Carbon\Carbon::parse($this->check_in_time);
-        $checkOut = \Carbon\Carbon::parse($this->check_out_time);
+        // Combine attendance_date with check_in_time to create full datetime
+        $checkInDateTime = \Carbon\Carbon::parse($this->attendance_date->format('Y-m-d') . ' ' . $this->check_in_time);
 
-        // Calculate difference in minutes and convert to hours
-        $minutes = $checkOut->diffInMinutes($checkIn);
+        // If user is currently checked in (no check-out time), calculate from check-in to now
+        if (!$this->check_out_time) {
+            $now = \Carbon\Carbon::now();
+            $minutes = abs($now->diffInMinutes($checkInDateTime));
+            return round($minutes / 60, 2);
+        }
+
+        // Combine attendance_date with check_out_time to create full datetime
+        $checkOutDateTime = \Carbon\Carbon::parse($this->attendance_date->format('Y-m-d') . ' ' . $this->check_out_time);
+
+        // Calculate difference in minutes and convert to hours (use abs to ensure positive)
+        $minutes = abs($checkOutDateTime->diffInMinutes($checkInDateTime));
         
         return round($minutes / 60, 2);
     }

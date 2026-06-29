@@ -138,20 +138,26 @@
 
                 <div class="text-xs font-semibold text-white/40 uppercase tracking-wider mb-3 px-3 mt-6">Management</div>
 
-                <a href="#" class="sidebar-link">
+                <a href="{{ route('admin.users') }}" class="sidebar-link {{ request()->is('admin/users') ? 'active' : '' }}">
                     <i class="ti ti-users"></i>
                     <span>Users</span>
                 </a>
 
-                <a href="#" class="sidebar-link">
+                <a href="{{ route('admin.attendance') }}" class="sidebar-link {{ request()->is('admin/attendance') ? 'active' : '' }}">
                     <i class="ti ti-calendar"></i>
                     <span>Attendance</span>
                 </a>
+                <a href="{{ route('admin.leave.index') }}" class="sidebar-link {{ request()->is('admin/leave') ? 'active' : '' }}">
+                    <i class="ti ti-calendar-time"></i>
+                    <span>Leave </span>
+                </a>
 
-                <a href="#" class="sidebar-link">
+                <a href="{{ route('admin.reports') }}" class="sidebar-link {{ request()->is('admin/reports') ? 'active' : '' }}">
                     <i class="ti ti-chart-bar"></i>
                     <span>Reports</span>
                 </a>
+
+                
 
                 <div class="text-xs font-semibold text-white/40 uppercase tracking-wider mb-3 px-3 mt-6">Settings</div>
 

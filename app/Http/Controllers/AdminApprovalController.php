@@ -377,6 +377,44 @@ class AdminApprovalController extends Controller
         // Calculate attendance rate based on present + late vs total
         $attendanceRate = $totalAttendance > 0 ? round((($totalPresent + $totalLate) / $totalAttendance) * 100, 2) : 0;
         
+        // Calculate total hours worked using model accessor
+        $allAttendances = Attendance::all();
+        $totalHoursWorked = $allAttendances->sum('hours_worked');
+        
+        // Calculate current month hours worked
+        $currentMonthStart = now()->startOfMonth();
+        $currentMonthEnd = now()->endOfMonth();
+        $monthAttendances = Attendance::whereBetween('attendance_date', [$currentMonthStart, $currentMonthEnd])->get();
+        $monthHoursWorked = $monthAttendances->sum('hours_worked');
+        
+        // Calculate current week hours worked
+        $currentWeekStart = now()->startOfWeek();
+        $currentWeekEnd = now()->endOfWeek();
+        $weekAttendances = Attendance::whereBetween('attendance_date', [$currentWeekStart, $currentWeekEnd])->get();
+        $weekHoursWorked = $weekAttendances->sum('hours_worked');
+        
+        // Leave analytics
+        $allLeaves = \App\Models\Leave::all();
+        $totalLeaves = $allLeaves->count();
+        $approvedLeaves = $allLeaves->where('status', 'approved')->count();
+        $pendingLeaves = $allLeaves->where('status', 'pending')->count();
+        $rejectedLeaves = $allLeaves->where('status', 'rejected')->count();
+        
+        // Calculate total leave days using model accessor
+        $totalLeaveDays = $allLeaves->sum('duration');
+        
+        // Current month leave days
+        $monthLeaveDays = $allLeaves->filter(function($leave) use ($currentMonthStart, $currentMonthEnd) {
+            return $leave->start_date >= $currentMonthStart && $leave->start_date <= $currentMonthEnd;
+        })->sum('duration');
+        
+        // Leave by type
+        $leaveByType = [
+            'sick' => $allLeaves->where('type', 'sick')->count(),
+            'vacation' => $allLeaves->where('type', 'vacation')->count(),
+            'personal' => $allLeaves->where('type', 'personal')->count(),
+        ];
+        
         $analytics = [
             'total_users' => $users->count(),
             'total_attendance_records' => $totalAttendance,
@@ -397,6 +435,20 @@ class AdminApprovalController extends Controller
                 ]
             ],
             'monthly_trend' => $this->getMonthlyTrend(Attendance::all()),
+            'hours_worked' => [
+                'total' => round($totalHoursWorked, 1),
+                'month' => round($monthHoursWorked, 1),
+                'week' => round($weekHoursWorked, 1),
+            ],
+            'leave_analytics' => [
+                'total_leaves' => $totalLeaves,
+                'approved' => $approvedLeaves,
+                'pending' => $pendingLeaves,
+                'rejected' => $rejectedLeaves,
+                'total_days' => $totalLeaveDays,
+                'month_days' => $monthLeaveDays,
+                'by_type' => $leaveByType,
+            ],
         ];
 
         return view('admin.reports', compact('analytics', 'users', 'attendances'));
@@ -454,6 +506,7 @@ class AdminApprovalController extends Controller
 
         $users = User::where('role', '!=', 'admin')->orderBy('name')->get();
         $attendances = Attendance::all();
+        $leaves = \App\Models\Leave::all();
 
         // Calculate attendance summaries for different periods
         $attendanceSummaries = [];
@@ -488,6 +541,11 @@ class AdminApprovalController extends Controller
                 return in_array($att->status, ['present', 'late']);
             })->count();
             
+            // Calculate hours worked
+            $weekHoursWorked = $weekAttendances->sum('hours_worked');
+            $monthHoursWorked = $monthAttendances->sum('hours_worked');
+            $totalHoursWorked = $userAttendances->sum('hours_worked');
+            
             $attendanceSummaries[$user->id] = [
                 'user' => $user,
                 'week' => [
@@ -497,6 +555,7 @@ class AdminApprovalController extends Controller
                         return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time <= '09:00:00';
                     })->count(),
                     'not_attended' => 7 - $weekAttendances->count(),
+                    'hours_worked' => round($weekHoursWorked, 1),
                 ],
                 'month' => [
                     'attended' => $monthAttended,
@@ -505,6 +564,7 @@ class AdminApprovalController extends Controller
                         return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time <= '09:00:00';
                     })->count(),
                     'not_attended' => now()->daysInMonth - $monthAttendances->count(),
+                    'hours_worked' => round($monthHoursWorked, 1),
                 ],
                 'total' => [
                     'attended' => $totalAttended,
@@ -512,15 +572,16 @@ class AdminApprovalController extends Controller
                     'early' => $userAttendances->filter(function($att) {
                         return in_array($att->status, ['present', 'late']) && $att->check_in_time && $att->check_in_time <= '09:00:00';
                     })->count(),
+                    'hours_worked' => round($totalHoursWorked, 1),
                 ]
             ];
         }
         
         // Calculate overall summary
         $summary = [
-            'week' => ['attended' => 0, 'late' => 0, 'early' => 0, 'not_attended' => 0],
-            'month' => ['attended' => 0, 'late' => 0, 'early' => 0, 'not_attended' => 0],
-            'total' => ['attended' => 0, 'late' => 0, 'early' => 0]
+            'week' => ['attended' => 0, 'late' => 0, 'early' => 0, 'not_attended' => 0, 'hours_worked' => 0],
+            'month' => ['attended' => 0, 'late' => 0, 'early' => 0, 'not_attended' => 0, 'hours_worked' => 0],
+            'total' => ['attended' => 0, 'late' => 0, 'early' => 0, 'hours_worked' => 0]
         ];
         
         foreach ($attendanceSummaries as $data) {
@@ -528,15 +589,18 @@ class AdminApprovalController extends Controller
             $summary['week']['late'] += $data['week']['late'];
             $summary['week']['early'] += $data['week']['early'];
             $summary['week']['not_attended'] += $data['week']['not_attended'];
+            $summary['week']['hours_worked'] += $data['week']['hours_worked'];
 
             $summary['month']['attended'] += $data['month']['attended'];
             $summary['month']['late'] += $data['month']['late'];
             $summary['month']['early'] += $data['month']['early'];
             $summary['month']['not_attended'] += $data['month']['not_attended'];
+            $summary['month']['hours_worked'] += $data['month']['hours_worked'];
 
             $summary['total']['attended'] += $data['total']['attended'];
             $summary['total']['late'] += $data['total']['late'];
             $summary['total']['early'] += $data['total']['early'];
+            $summary['total']['hours_worked'] += $data['total']['hours_worked'];
         }
 
         // Analytics data
@@ -547,6 +611,62 @@ class AdminApprovalController extends Controller
         // Calculate attendance rate based on present + late vs total
         $attendanceRate = $totalAttendance > 0 ? round((($totalPresent + $totalLate) / $totalAttendance) * 100, 2) : 0;
         
+        // Calculate total hours worked using model accessor
+        $totalHoursWorked = $attendances->sum('hours_worked');
+        
+        // Calculate current month hours worked
+        $currentMonthStart = now()->startOfMonth();
+        $currentMonthEnd = now()->endOfMonth();
+        $monthHoursWorked = $attendances->filter(function($att) use ($currentMonthStart, $currentMonthEnd) {
+            return $att->attendance_date >= $currentMonthStart && $att->attendance_date <= $currentMonthEnd;
+        })->sum('hours_worked');
+        
+        // Calculate current week hours worked
+        $currentWeekStart = now()->startOfWeek();
+        $currentWeekEnd = now()->endOfWeek();
+        $weekHoursWorked = $attendances->filter(function($att) use ($currentWeekStart, $currentWeekEnd) {
+            return $att->attendance_date >= $currentWeekStart && $att->attendance_date <= $currentWeekEnd;
+        })->sum('hours_worked');
+        
+        // Leave analytics
+        $totalLeaves = $leaves->count();
+        $approvedLeaves = $leaves->where('status', 'approved')->count();
+        $pendingLeaves = $leaves->where('status', 'pending')->count();
+        $rejectedLeaves = $leaves->where('status', 'rejected')->count();
+        
+        // Calculate total leave days using model accessor
+        $totalLeaveDays = $leaves->sum('duration');
+        
+        // Current month leave days
+        $monthLeaveDays = $leaves->filter(function($leave) use ($currentMonthStart, $currentMonthEnd) {
+            return $leave->start_date >= $currentMonthStart && $leave->start_date <= $currentMonthEnd;
+        })->sum('duration');
+        
+        // Leave by type
+        $leaveByType = [
+            'sick' => $leaves->where('type', 'sick')->count(),
+            'vacation' => $leaves->where('type', 'vacation')->count(),
+            'personal' => $leaves->where('type', 'personal')->count(),
+        ];
+        
+        // Detailed leave data with user information
+        $leaveDetails = [];
+        foreach ($leaves as $leave) {
+            $leaveDetails[] = [
+                'user' => $leave->user,
+                'type' => $leave->type,
+                'start_date' => $leave->start_date->format('M d, Y'),
+                'end_date' => $leave->end_date->format('M d, Y'),
+                'duration' => $leave->duration,
+                'status' => $leave->status,
+                'reason' => $leave->reason,
+            ];
+        }
+        
+        // Separate users by role with department info
+        $staffUsers = $users->where('role', 'staff');
+        $attacheeUsers = $users->where('role', 'attachee');
+        
         $analytics = [
             'total_users' => $users->count(),
             'total_attendance_records' => $totalAttendance,
@@ -554,19 +674,36 @@ class AdminApprovalController extends Controller
             'late_rate' => $totalAttendance > 0 ? round(($totalLate / $totalAttendance) * 100, 2) : 0,
             'by_role' => [
                 'staff' => [
-                    'total' => $users->where('role', 'staff')->count(),
+                    'total' => $staffUsers->count(),
                     'attendance' => $attendances->filter(function($att) {
                         return $att->user->role === 'staff';
-                    })->count()
+                    })->count(),
+                    'users' => $staffUsers,
                 ],
                 'attachee' => [
-                    'total' => $users->where('role', 'attachee')->count(),
+                    'total' => $attacheeUsers->count(),
                     'attendance' => $attendances->filter(function($att) {
                         return $att->user->role === 'attachee';
-                    })->count()
+                    })->count(),
+                    'users' => $attacheeUsers,
                 ]
             ],
             'monthly_trend' => $this->getMonthlyTrend($attendances),
+            'hours_worked' => [
+                'total' => round($totalHoursWorked, 1),
+                'month' => round($monthHoursWorked, 1),
+                'week' => round($weekHoursWorked, 1),
+            ],
+            'leave_analytics' => [
+                'total_leaves' => $totalLeaves,
+                'approved' => $approvedLeaves,
+                'pending' => $pendingLeaves,
+                'rejected' => $rejectedLeaves,
+                'total_days' => $totalLeaveDays,
+                'month_days' => $monthLeaveDays,
+                'by_type' => $leaveByType,
+                'details' => $leaveDetails,
+            ],
         ];
 
         $pdf = PDF::loadView('admin.reports-pdf', compact('analytics', 'attendances', 'attendanceSummaries', 'summary'));

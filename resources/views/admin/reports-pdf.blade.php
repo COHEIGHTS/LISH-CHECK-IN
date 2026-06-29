@@ -29,20 +29,20 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 40px;
-            padding-bottom: 30px;
-            border-bottom: 3px solid #7c3aed;
+            margin-bottom: 48px;
+            padding-bottom: 36px;
+            border-bottom: 4px solid #7c3aed;
         }
         
         .logo-section {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 24px;
         }
         
         .logo {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
         }
         
         .logo svg {
@@ -51,10 +51,10 @@
         }
         
         .company-name {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 800;
             color: #7c3aed;
-            letter-spacing: -0.5px;
+            letter-spacing: -1px;
         }
         
         .report-info {
@@ -62,10 +62,10 @@
         }
         
         .report-title {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 700;
             color: #1e293b;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
         
         .report-date {
@@ -76,30 +76,30 @@
         
         .section {
             background: white;
-            border-radius: 12px;
-            padding: 30px;
-            margin-bottom: 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 28px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
         
         .section-title {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 700;
             color: #1e293b;
-            margin-bottom: 20px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 3px solid #e2e8f0;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
         
         .section-title::before {
             content: '';
-            width: 4px;
-            height: 24px;
+            width: 5px;
+            height: 28px;
             background: linear-gradient(135deg, #7c3aed, #0ea5e9);
-            border-radius: 2px;
+            border-radius: 3px;
         }
         
         .stats-grid {
@@ -109,30 +109,33 @@
         }
         
         .stat-card {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border-radius: 10px;
-            padding: 24px;
-            border-left: 4px solid #7c3aed;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 12px;
+            padding: 28px;
+            border-left: 5px solid #7c3aed;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
         }
         
         .stat-value {
-            font-size: 36px;
+            font-size: 42px;
             font-weight: 800;
             color: #7c3aed;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
         }
         
         .stat-label {
-            font-size: 14px;
+            font-size: 13px;
             color: #64748b;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.75px;
         }
         
         .stat-change {
             font-size: 12px;
-            margin-top: 8px;
+            margin-top: 10px;
             font-weight: 500;
         }
         
@@ -217,32 +220,34 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 16px;
         }
         
         th {
             background: linear-gradient(135deg, #7c3aed, #0ea5e9);
             color: white;
-            padding: 14px 16px;
+            padding: 16px 18px;
             text-align: left;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.75px;
         }
         
         th:first-child {
-            border-radius: 8px 0 0 0;
+            border-radius: 10px 0 0 0;
         }
         
         th:last-child {
-            border-radius: 0 8px 0 0;
+            border-radius: 0 10px 0 0;
         }
         
         td {
-            padding: 14px 16px;
+            padding: 16px 18px;
             border-bottom: 1px solid #e2e8f0;
             font-size: 14px;
             color: #1e293b;
+            font-weight: 500;
         }
         
         tr:last-child td {
@@ -250,7 +255,11 @@
         }
         
         tr:nth-child(even) {
-            background: #f8fafc;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+        
+        tr:hover {
+            background: #f0f9ff;
         }
         
         .status-badge {
@@ -271,6 +280,11 @@
         .status-late {
             background: #fee2e2;
             color: #991b1b;
+        }
+        
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
         }
         
         .footer {
@@ -353,24 +367,140 @@
                         {{ $analytics['late_rate'] <= 10 ? 'Excellent' : 'High' }}
                     </div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ number_format($analytics['hours_worked']['total'], 1) }}h</div>
+                    <div class="stat-label">Total Hours Worked</div>
+                    <div class="stat-change positive">All time</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ number_format($analytics['hours_worked']['month'], 1) }}h</div>
+                    <div class="stat-label">This Month Hours</div>
+                    <div class="stat-change positive">Current month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ number_format($analytics['hours_worked']['week'], 1) }}h</div>
+                    <div class="stat-label">This Week Hours</div>
+                    <div class="stat-change positive">Current week</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ $analytics['leave_analytics']['total_leaves'] }}</div>
+                    <div class="stat-label">Total Leave Requests</div>
+                    <div class="stat-change positive">{{ $analytics['leave_analytics']['approved'] }} approved</div>
+                </div>
             </div>
         </div>
 
         <!-- Attendance by Role -->
         <div class="section">
-            <div class="section-title">Attendance by Role</div>
-            <div class="role-breakdown">
-                <div class="role-stat">
-                    <div class="role-stat-value">{{ $analytics['by_role']['staff']['total'] }}</div>
-                    <div class="role-stat-label">Staff Members</div>
-                    <div class="stat-change positive">{{ $analytics['by_role']['staff']['attendance'] }} records</div>
+            <div class="section-title">Staff Members</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Department</th>
+                        <th>Position</th>
+                        <th>Total Attended</th>
+                        <th>Total Hours</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($analytics['by_role']['staff']['users'] as $user)
+                        <tr>
+                            <td>{{ $user->name }}</td>
+                            <td>{{ $user->department ?? 'N/A' }}</td>
+                            <td>{{ $user->position ?? 'N/A' }}</td>
+                            <td>{{ $attendanceSummaries[$user->id]['total']['attended'] ?? 0 }}</td>
+                            <td>{{ number_format($attendanceSummaries[$user->id]['total']['hours_worked'] ?? 0, 1) }}h</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Attachees</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Department</th>
+                        <th>Institution</th>
+                        <th>Total Attended</th>
+                        <th>Total Hours</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($analytics['by_role']['attachee']['users'] as $user)
+                        <tr>
+                            <td>{{ $user->name }}</td>
+                            <td>{{ $user->department ?? 'N/A' }}</td>
+                            <td>{{ $user->institution ?? 'N/A' }}</td>
+                            <td>{{ $attendanceSummaries[$user->id]['total']['attended'] ?? 0 }}</td>
+                            <td>{{ number_format($attendanceSummaries[$user->id]['total']['hours_worked'] ?? 0, 1) }}h</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Leave Analytics -->
+        <div class="section">
+            <div class="section-title">Leave Analytics</div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">{{ $analytics['leave_analytics']['total_leaves'] }}</div>
+                    <div class="stat-label">Total Leave Requests</div>
+                    <div class="stat-change positive">{{ $analytics['leave_analytics']['approved'] }} approved, {{ $analytics['leave_analytics']['pending'] }} pending</div>
                 </div>
-                <div class="role-stat">
-                    <div class="role-stat-value">{{ $analytics['by_role']['attachee']['total'] }}</div>
-                    <div class="role-stat-label">Attachees</div>
-                    <div class="stat-change positive">{{ $analytics['by_role']['attachee']['attendance'] }} records</div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ $analytics['leave_analytics']['total_days'] }}</div>
+                    <div class="stat-label">Total Leave Days</div>
+                    <div class="stat-change positive">{{ $analytics['leave_analytics']['month_days'] }} this month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ $analytics['leave_analytics']['by_type']['sick'] }}</div>
+                    <div class="stat-label">Sick Leave</div>
+                    <div class="stat-change positive">Requests</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ $analytics['leave_analytics']['by_type']['vacation'] }}</div>
+                    <div class="stat-label">Vacation</div>
+                    <div class="stat-change positive">Requests</div>
                 </div>
             </div>
+        </div>
+
+        <!-- Leave Records -->
+        <div class="section">
+            <div class="section-title">Leave Records</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Type</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Days</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($analytics['leave_analytics']['details'] as $leave)
+                        <tr>
+                            <td>{{ $leave['user']->name }}</td>
+                            <td>{{ ucfirst($leave['type']) }}</td>
+                            <td>{{ $leave['start_date'] }}</td>
+                            <td>{{ $leave['end_date'] }}</td>
+                            <td>{{ $leave['duration'] }}</td>
+                            <td>
+                                <span class="status-badge {{ $leave['status'] === 'approved' ? 'status-attended' : ($leave['status'] === 'rejected' ? 'status-late' : 'status-pending') }}">
+                                    {{ ucfirst($leave['status']) }}
+                                </span>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
 
         <!-- Monthly Trend -->
@@ -446,11 +576,34 @@
                     <div class="stat-change positive">Before 8:30 AM</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value">{{ $summary['month']['not_attended'] }}</div>
-                    <div class="stat-label">Not Attended</div>
-                    <div class="stat-change negative">This month</div>
+                    <div class="stat-value">{{ number_format($summary['month']['hours_worked'], 1) }}h</div>
+                    <div class="stat-label">Total Hours</div>
+                    <div class="stat-change positive">This month</div>
                 </div>
             </div>
+            
+            <table style="margin-top: 20px;">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Role</th>
+                        <th>Days Attended</th>
+                        <th>Days Late</th>
+                        <th>Hours Worked</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($attendanceSummaries as $data)
+                        <tr>
+                            <td>{{ $data['user']->name }}</td>
+                            <td>{{ ucfirst($data['user']->role) }}</td>
+                            <td>{{ $data['month']['attended'] }}</td>
+                            <td>{{ $data['month']['late'] }}</td>
+                            <td>{{ number_format($data['month']['hours_worked'], 1) }}h</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
 
         <!-- Total Summary -->

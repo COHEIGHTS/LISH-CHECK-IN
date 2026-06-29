@@ -128,7 +128,7 @@
                 <div class="action-btn-sub">Review pending users</div>
             </div>
         </a>
-        <a href="#" class="action-btn">
+        <a href="{{ route('admin.users') }}" class="action-btn">
             <i class="ti ti-users"></i>
             <div>
                 <div class="action-btn-text">User Management</div>
@@ -142,7 +142,7 @@
                 <div class="action-btn-sub">Daily attendance</div>
             </div>
         </a>
-        <a href="#" class="action-btn">
+        <a href="{{ route('admin.reports') }}" class="action-btn">
             <i class="ti ti-chart-bar"></i>
             <div>
                 <div class="action-btn-text">Attendance Reports</div>

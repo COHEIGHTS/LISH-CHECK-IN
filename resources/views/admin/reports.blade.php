@@ -440,6 +440,26 @@
                 {{ $analytics['late_rate'] <= 10 ? 'Excellent' : 'High' }}
             </div>
         </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ number_format($analytics['hours_worked']['total'], 1) }}h</div>
+            <div class="stat-label">Total Hours Worked</div>
+            <div class="stat-change positive">All time</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ number_format($analytics['hours_worked']['month'], 1) }}h</div>
+            <div class="stat-label">This Month Hours</div>
+            <div class="stat-change positive">Current month</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ number_format($analytics['hours_worked']['week'], 1) }}h</div>
+            <div class="stat-label">This Week Hours</div>
+            <div class="stat-change positive">Current week</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ $analytics['leave_analytics']['total_leaves'] }}</div>
+            <div class="stat-label">Total Leave Requests</div>
+            <div class="stat-change positive">{{ $analytics['leave_analytics']['approved'] }} approved</div>
+        </div>
     </div>
 
     <div class="charts-grid">
@@ -535,6 +555,32 @@
                     <div class="role-stat-value">{{ $analytics['by_role']['attachee']['total'] }}</div>
                     <div class="role-stat-label">Attachees</div>
                     <div class="stat-change positive">{{ $analytics['by_role']['attachee']['attendance'] }} records</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <div class="chart-title">Leave Analytics</div>
+            <div class="analytics-summary">
+                <div class="analytics-card">
+                    <div class="analytics-card-label">Total Leave Requests</div>
+                    <div class="analytics-card-value">{{ $analytics['leave_analytics']['total_leaves'] }}</div>
+                    <div class="analytics-card-sub">{{ $analytics['leave_analytics']['approved'] }} approved, {{ $analytics['leave_analytics']['pending'] }} pending</div>
+                </div>
+                <div class="analytics-card">
+                    <div class="analytics-card-label">Total Leave Days</div>
+                    <div class="analytics-card-value">{{ $analytics['leave_analytics']['total_days'] }}</div>
+                    <div class="analytics-card-sub">{{ $analytics['leave_analytics']['month_days'] }} this month</div>
+                </div>
+                <div class="analytics-card">
+                    <div class="analytics-card-label">Sick Leave</div>
+                    <div class="analytics-card-value">{{ $analytics['leave_analytics']['by_type']['sick'] }}</div>
+                    <div class="analytics-card-sub">{{ $analytics['leave_analytics']['by_type']['sick'] > 0 ? 'Requests' : 'None' }}</div>
+                </div>
+                <div class="analytics-card">
+                    <div class="analytics-card-label">Vacation</div>
+                    <div class="analytics-card-value">{{ $analytics['leave_analytics']['by_type']['vacation'] }}</div>
+                    <div class="analytics-card-sub">{{ $analytics['leave_analytics']['by_type']['vacation'] > 0 ? 'Requests' : 'None' }}</div>
                 </div>
             </div>
         </div>
